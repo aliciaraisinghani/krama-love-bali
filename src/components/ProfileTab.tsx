@@ -174,33 +174,33 @@ const ProfileTab = () => {
     finalRole: mostPlayedRole
   });
 
-  // Role icon mapping - using a combination of available sources and fallback icons
+  // Role icon mapping - using downloaded lane icons
   const getRoleIcon = (role: string) => {
-    const roleIcons: Record<string, { icon: any; color: string; url?: string }> = {
-      'Top': { 
+    const roleIcons: Record<string, { icon: any; color: string; iconPath?: string }> = {
+      'Top Lane': { 
         icon: Sword, 
         color: 'text-red-400',
-        url: 'https://static.wikia.nocookie.net/leagueoflegends/images/f/fb/Top_icon.png'
+        iconPath: '/lane-top.png'
       },
       'Jungle': { 
         icon: TreePine, 
         color: 'text-green-400',
-        url: 'https://static.wikia.nocookie.net/leagueoflegends/images/1/1b/Jungle_icon.png'
+        iconPath: '/lane-jungle.png'
       },
-      'Mid': { 
+      'Mid Lane': { 
         icon: Zap, 
         color: 'text-blue-400',
-        url: 'https://static.wikia.nocookie.net/leagueoflegends/images/2/2f/Middle_icon.png'
+        iconPath: '/lane-mid.png'
       },
-      'ADC': { 
+      'Bot Lane': { 
         icon: Target, 
         color: 'text-orange-400',
-        url: 'https://static.wikia.nocookie.net/leagueoflegends/images/4/40/Bottom_icon.png'
+        iconPath: '/lane-bot.png'
       },
       'Support': { 
         icon: Users, 
         color: 'text-cyan-400',
-        url: 'https://static.wikia.nocookie.net/leagueoflegends/images/e/e0/Support_icon.png'
+        iconPath: '/lane-support.png'
       },
       'Unknown': { 
         icon: Users, 
@@ -339,15 +339,15 @@ const ProfileTab = () => {
                 <Star className="h-5 w-5 text-lol-gold" />
                 <span className="text-base text-muted-foreground">Main Role</span>
               </div>
-              <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2">
                 {(() => {
                   const roleData = getRoleIcon(mostPlayedRole);
                   const IconComponent = roleData.icon;
                   return (
                     <>
-                      {roleData.url ? (
+                      {roleData.iconPath ? (
                         <img
-                          src={roleData.url}
+                          src={roleData.iconPath}
                           alt={`${mostPlayedRole} role icon`}
                           className="w-5 h-5"
                           onError={(e) => {
@@ -357,14 +357,14 @@ const ProfileTab = () => {
                           }}
                         />
                       ) : null}
-                      <IconComponent className={`h-5 w-5 ${roleData.color} ${roleData.url ? 'hidden' : ''}`} />
+                      <IconComponent className={`h-5 w-5 ${roleData.color} ${roleData.iconPath ? 'hidden' : ''}`} />
                       <Badge variant="outline" className="border-lol-gold/30 text-lol-gold text-sm px-3 py-1">
                         {mostPlayedRole}
-                </Badge>
+                      </Badge>
                     </>
                   );
                 })()}
-            </div>
+              </div>
           </div>
         </CardContent>
       </Card>

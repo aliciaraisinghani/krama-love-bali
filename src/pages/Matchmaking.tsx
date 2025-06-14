@@ -45,6 +45,7 @@ interface MatchmakingFormData {
   champions: string;
   preference: string;
   dealbreakers: string;
+  gameMode: 'ranked' | 'casual' | '';
 }
 
 interface PlayerStats {
@@ -179,7 +180,8 @@ const Matchmaking: React.FC = () => {
     playerType: '',
     champions: '',
     preference: '',
-    dealbreakers: ''
+    dealbreakers: '',
+    gameMode: ''
   });
 
   // Load player stats on component mount
@@ -229,7 +231,9 @@ const Matchmaking: React.FC = () => {
       parts.push(formData.preference);
     }
 
-
+    if (formData.gameMode) {
+      parts.push(`for ${formData.gameMode} games`);
+    }
     
     if (formData.dealbreakers) {
       parts.push(`but not ${formData.dealbreakers}`);
@@ -295,7 +299,8 @@ const Matchmaking: React.FC = () => {
       playerType: '',
       champions: '',
       preference: '',
-      dealbreakers: ''
+      dealbreakers: '',
+      gameMode: ''
     });
   };
 
@@ -1577,70 +1582,88 @@ const Matchmaking: React.FC = () => {
 
   // Form Screen (default)
   return (
-    <div className="min-h-screen bg-lol-black p-4">
-      <div className="max-w-4xl mx-auto py-8">
+    <div className="bg-lol-black min-h-[calc(100vh-120px)] flex flex-col justify-center">
+      <div className="max-w-xl mx-auto py-4">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-lol-white mb-4">
-            Forge your perfect duo with intelligence
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-lol-white mb-3">
+            Find your perfect duo with intelligence.
           </h1>
-          <p className="text-lg text-lol-white/60">
+          <p className="text-base text-lol-white/60">
             Tell us what you're looking for and we'll help you find the perfect teammate.
           </p>
         </div>
 
         {/* Main Form */}
         <Card className="border border-lol-gray-700 shadow-xl bg-lol-gray-800/80 backdrop-blur-sm">
-          <CardContent className="p-8">
-            {/* 3-Part Prompt - Left-aligned but centered in middle third */}
-            <div className="max-w-2xl mx-auto">
-              <div className="space-y-6">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2 text-2xl font-medium text-lol-white leading-relaxed">
-                    <span>Find me a</span>
-                    <div className="min-w-[180px]">
-                      <Input
-                        placeholder="type of player"
-                        value={formData.playerType}
-                        onChange={(e) => setFormData(prev => ({ ...prev, playerType: e.target.value }))}
-                        className="h-10 text-lg border-2 border-lol-gold/30 bg-lol-gray-900 text-lol-gold font-medium placeholder:text-lol-gold/50 focus:border-lol-gold rounded-full px-4"
-                      />
-                    </div>
+          <CardContent className="p-4">
+            {/* 3-Part Prompt - Left-aligned natural flow with left margin */}
+            <div className="space-y-2 ml-4">
+              <div className="text-left">
+                <div className="text-2xl font-medium text-lol-white leading-relaxed">
+                  <div className="mb-2">
+                    <span>Find me a </span>
+                    <Input
+                      placeholder="type of player"
+                      value={formData.playerType}
+                      onChange={(e) => setFormData(prev => ({ ...prev, playerType: e.target.value }))}
+                      className="inline-block w-auto min-w-[180px] h-12 text-2xl border-2 border-lol-gold bg-lol-gray-800 text-lol-white font-medium placeholder:text-lol-white/60 focus:border-lol-gold-dark focus:bg-lol-gray-700 rounded-full px-6 mx-1"
+                    />
                   </div>
-                </div>
-
-                <div>
-                  <div className="flex flex-wrap items-center gap-2 text-2xl font-medium text-lol-white leading-relaxed">
-                    <span>who loves</span>
-                    <div className="min-w-[280px]">
-                      <Input
-                        placeholder="champions or roles"
-                        value={formData.champions}
-                        onChange={(e) => setFormData(prev => ({ ...prev, champions: e.target.value }))}
-                        className="h-10 text-lg border-2 border-pink-400/30 bg-lol-gray-900 text-pink-400 font-medium placeholder:text-pink-400/50 focus:border-pink-400 rounded-full px-4"
-                      />
-                    </div>
+                  <div className="mb-2">
+                    <span>who loves </span>
+                    <Input
+                      placeholder="champions or roles"
+                      value={formData.champions}
+                      onChange={(e) => setFormData(prev => ({ ...prev, champions: e.target.value }))}
+                      className="inline-block w-auto min-w-[200px] h-12 text-2xl border-2 border-lol-blue bg-lol-gray-800 text-lol-white font-medium placeholder:text-lol-white/60 focus:border-lol-blue-dark focus:bg-lol-gray-700 rounded-full px-6 mx-1"
+                    />
                   </div>
-                </div>
-
-                <div>
-                  <div className="flex flex-wrap items-center gap-2 text-2xl font-medium text-lol-white leading-relaxed">
-                    <span>and</span>
-                    <div className="min-w-[220px]">
-                      <Input
-                        placeholder="gaming preference"
-                        value={formData.preference}
-                        onChange={(e) => setFormData(prev => ({ ...prev, preference: e.target.value }))}
-                        className="h-10 text-lg border-2 border-lol-blue/30 bg-lol-gray-900 text-lol-blue font-medium placeholder:text-lol-blue/50 focus:border-lol-blue rounded-full px-4"
-                      />
-                    </div>
+                  <div className="mb-2">
+                    <span>and </span>
+                    <Input
+                      placeholder="gaming preference"
+                      value={formData.preference}
+                      onChange={(e) => setFormData(prev => ({ ...prev, preference: e.target.value }))}
+                      className="inline-block w-auto min-w-[220px] h-12 text-2xl border-2 border-lol-gold-dark bg-lol-gray-800 text-lol-white font-medium placeholder:text-lol-white/60 focus:border-lol-gold focus:bg-lol-gray-700 rounded-full px-6 mx-1"
+                    />
+                  </div>
+                  
+                  {/* Game Mode Selection */}
+                  <div className="mt-4 flex gap-2">
+                    <Button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, gameMode: 'ranked' }))}
+                      variant="outline"
+                      size="sm"
+                      className={`px-3 py-1 text-xs font-medium rounded-full transition-all h-7 ${
+                        formData.gameMode === 'ranked'
+                          ? 'bg-green-500/20 border-green-500 text-green-400 hover:bg-green-500/30'
+                          : 'bg-gray-800/50 border-gray-600 text-gray-300 hover:bg-gray-700/70 hover:text-gray-200 hover:border-gray-500'
+                      }`}
+                    >
+                      Ranked
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, gameMode: 'casual' }))}
+                      variant="outline"
+                      size="sm"
+                      className={`px-3 py-1 text-xs font-medium rounded-full transition-all h-7 ${
+                        formData.gameMode === 'casual'
+                          ? 'bg-green-500/20 border-green-500 text-green-400 hover:bg-green-500/30'
+                          : 'bg-gray-800/50 border-gray-600 text-gray-300 hover:bg-gray-700/70 hover:text-gray-200 hover:border-gray-500'
+                      }`}
+                    >
+                      Casual
+                    </Button>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Dealbreakers Section */}
-            <div className="mt-12">
+            <div className="mt-4">
               <Collapsible open={showDealbreakers} onOpenChange={setShowDealbreakers}>
                 <CollapsibleTrigger asChild>
                   <Button 
@@ -1655,24 +1678,24 @@ const Matchmaking: React.FC = () => {
                     )}
                   </Button>
                 </CollapsibleTrigger>
-                <CollapsibleContent className="mt-4">
+                <CollapsibleContent className="mt-1">
                   <Textarea
                     placeholder="e.g., No toxic players, must have mic, no one-tricks..."
                     value={formData.dealbreakers}
                     onChange={(e) => setFormData(prev => ({ ...prev, dealbreakers: e.target.value }))}
-                    className="min-h-[100px] border-lol-gray-600 bg-lol-gray-900 text-lol-white placeholder:text-lol-white/50 focus:border-lol-gold focus:ring-lol-gold"
+                    className="min-h-[60px] border-lol-gray-600 bg-lol-gray-900 text-lol-white placeholder:text-lol-white/50 focus:border-lol-gold focus:ring-lol-gold"
                   />
                 </CollapsibleContent>
               </Collapsible>
             </div>
 
             {/* Submit Button */}
-            <div className="mt-12 text-center">
+            <div className="mt-4">
               <Button 
                 onClick={handleSubmit}
                 disabled={!formData.playerType || !formData.preference || isSearching}
                 size="lg"
-                className="px-12 py-4 text-lg bg-gradient-to-r from-lol-gold to-lol-gold-dark hover:from-lol-gold-dark hover:to-lol-gold text-lol-black font-bold disabled:opacity-50"
+                className="w-full py-4 text-lg bg-gradient-to-r from-lol-gold to-lol-gold-dark hover:from-lol-gold-dark hover:to-lol-gold text-lol-black font-bold disabled:opacity-50"
               >
                 <Search className={`w-5 h-5 mr-2 ${isSearching ? 'animate-spin' : ''}`} />
                 {isSearching ? 'Searching...' : 'Find My Duo'}

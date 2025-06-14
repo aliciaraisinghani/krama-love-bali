@@ -103,27 +103,29 @@ const Index = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className={`max-w-7xl mx-auto px-4 ${activeTab === 'matchmaking' ? 'py-4' : 'py-8'}`}>
         {renderContent()}
       </main>
 
-      {/* Footer with LoL branding */}
-      <footer className="bg-lol-gray-900 border-t border-lol-gray-700 mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="text-center text-lol-white/40 text-sm">
-            <div className="flex items-center justify-center gap-2">
-              <span>© 2025</span>
-              <img 
-                src="/ezlfp-logo.png" 
-                alt="EZLFP" 
-                className="h-6 w-auto"
-              />
-              <span>- Find Your Duo. Rise in Ranked.</span>
+      {/* Footer with LoL branding - Hidden on matchmaking tab */}
+      {activeTab !== 'matchmaking' && (
+        <footer className="bg-lol-gray-900 border-t border-lol-gray-700 mt-16">
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <div className="text-center text-lol-white/40 text-sm">
+              <div className="flex items-center justify-center gap-2">
+                <span>© 2025</span>
+                <img 
+                  src="/ezlfp-logo.png" 
+                  alt="EZLFP" 
+                  className="h-6 w-auto"
+                />
+                <span>- Find Your Duo. Rise in Ranked.</span>
+              </div>
+              <p className="mt-1">Not affiliated with Riot Games. League of Legends is a trademark of Riot Games, Inc.</p>
             </div>
-            <p className="mt-1">Not affiliated with Riot Games. League of Legends is a trademark of Riot Games, Inc.</p>
           </div>
-        </div>
-      </footer>
+        </footer>
+      )}
     </div>
   );
 };
