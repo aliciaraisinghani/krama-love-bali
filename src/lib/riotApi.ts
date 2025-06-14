@@ -55,8 +55,19 @@ export interface PlayerStats {
 class RiotApiService {
   private async makeRequest<T>(url: string): Promise<T> {
     if (!RIOT_API_KEY) {
+      console.error('API Key check failed:', {
+        envVar: import.meta.env.VITE_RIOT_API_KEY,
+        processed: RIOT_API_KEY,
+        available: !!import.meta.env.VITE_RIOT_API_KEY
+      });
       throw new Error('Riot API key not configured');
     }
+
+    console.log('Making API request:', {
+      url,
+      apiKeyLength: RIOT_API_KEY.length,
+      apiKeyStart: RIOT_API_KEY.substring(0, 10) + '...'
+    });
 
     const response = await fetch(url, {
       headers: {
