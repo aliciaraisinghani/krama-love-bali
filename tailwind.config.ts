@@ -1,5 +1,5 @@
-
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
@@ -53,15 +53,20 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Gaming-inspired color palette
-				gaming: {
-					teal: '#14B8A6',
-					'teal-dark': '#0F766E',
-					'gray-900': '#111827',
-					'gray-800': '#1F2937',
-					'gray-700': '#374151',
-					black: '#000000',
-					white: '#FFFFFF'
+				// League of Legends inspired color palette
+				lol: {
+					blue: '#3C89E8',
+					'blue-dark': '#1E3A8A',
+					'blue-light': '#60A5FA',
+					gold: '#C8AA6E',
+					'gold-dark': '#A16207',
+					'gold-light': '#FDE047',
+					'gray-900': '#0A0E13',
+					'gray-800': '#1E2328',
+					'gray-700': '#3C3C41',
+					'gray-600': '#5BC0DE',
+					black: '#010A13',
+					white: '#F0E6D2'
 				}
 			},
 			borderRadius: {
@@ -106,12 +111,20 @@ export default {
 						opacity: '1'
 					}
 				},
-				'pulse-teal': {
+				'pulse-blue': {
 					'0%, 100%': {
-						boxShadow: '0 0 0 0 rgba(20, 184, 166, 0.7)'
+						boxShadow: '0 0 0 0 rgba(60, 137, 232, 0.7)'
 					},
 					'70%': {
-						boxShadow: '0 0 0 10px rgba(20, 184, 166, 0)'
+						boxShadow: '0 0 0 10px rgba(60, 137, 232, 0)'
+					}
+				},
+				'glow': {
+					'0%, 100%': {
+						boxShadow: '0 0 20px rgba(200, 170, 110, 0.5)'
+					},
+					'50%': {
+						boxShadow: '0 0 30px rgba(200, 170, 110, 0.8)'
 					}
 				}
 			},
@@ -120,13 +133,15 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.6s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
-				'pulse-teal': 'pulse-teal 2s infinite'
+				'pulse-blue': 'pulse-blue 2s infinite',
+				'glow': 'glow 2s ease-in-out infinite'
 			},
 			backgroundImage: {
-				'gradient-gaming': 'linear-gradient(135deg, #000000 0%, #1F2937 100%)',
-				'gradient-teal': 'linear-gradient(135deg, #14B8A6 0%, #0F766E 100%)'
+				'gradient-lol': 'linear-gradient(135deg, #0A0E13 0%, #1E2328 100%)',
+				'gradient-blue': 'linear-gradient(135deg, #3C89E8 0%, #1E3A8A 100%)',
+				'gradient-gold': 'linear-gradient(135deg, #C8AA6E 0%, #A16207 100%)'
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;

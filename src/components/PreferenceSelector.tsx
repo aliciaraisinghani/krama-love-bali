@@ -1,19 +1,20 @@
-
 import { Label } from './ui/label';
 
+interface Preferences {
+  playStyle: string;
+  skillLevel: string;
+  communication: string;
+  availability: string;
+}
+
 interface PreferenceSelectorProps {
-  preferences: {
-    playStyle: string;
-    skillLevel: string;
-    communication: string;
-    availability: string;
-  };
-  setPreferences: (preferences: any) => void;
+  preferences: Preferences;
+  setPreferences: (preferences: Preferences | ((prev: Preferences) => Preferences)) => void;
 }
 
 const PreferenceSelector = ({ preferences, setPreferences }: PreferenceSelectorProps) => {
   const updatePreference = (key: string, value: string) => {
-    setPreferences((prev: any) => ({ ...prev, [key]: value }));
+    setPreferences((prev: Preferences) => ({ ...prev, [key]: value }));
   };
 
   const preferenceOptions = {

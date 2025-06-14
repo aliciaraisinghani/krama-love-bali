@@ -1,73 +1,98 @@
-# Welcome to your Lovable project
+# GameMatch - Find Your Perfect Gaming Companion
 
-## Project info
+A modern web application for Marvel Rivals players to connect, find teammates, and build their gaming community.
 
-**URL**: https://lovable.dev/projects/7cb8044e-804a-46a1-8e28-34ee6d4134cd
+## Features
 
-## How can I edit this code?
+- **Player Matching**: Connect with Marvel Rivals players based on skill level, play style, and preferences
+- **Profile Management**: Create detailed gaming profiles with your preferences and playstyle
+- **Real-time Messaging**: Communicate with potential teammates through our integrated chat system
+- **Cross-Platform**: Find players across different platforms and regions
+- **Skill-Based Matching**: Filter players by rank, role preferences, and gaming schedule
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: React 18 with TypeScript
+- **UI Components**: shadcn/ui with Tailwind CSS
+- **State Management**: React Query for server state
+- **Build Tool**: Vite for fast development and building
+- **Styling**: Tailwind CSS with custom gaming theme
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7cb8044e-804a-46a1-8e28-34ee6d4134cd) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js (version 18 or higher)
+- npm or yarn package manager
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd krama-love-bali
+```
 
-Follow these steps:
+2. Install dependencies:
+```bash
+npm install
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+3. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+4. Open your browser and navigate to `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Available Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint for code quality
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Project Structure
 
-## What technologies are used for this project?
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # shadcn/ui components
+│   ├── ProfileTab.tsx  # Profile management
+│   ├── LoginView.tsx   # Authentication
+│   └── ...
+├── pages/              # Main application pages
+├── hooks/              # Custom React hooks
+├── lib/                # Utility functions
+└── App.tsx             # Main application component
+```
 
-This project is built with:
+## Features in Detail
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Authentication System
+- Secure login and registration
+- Social authentication support (Google, GitHub)
+- Profile validation and management
 
-## How can I deploy this project?
+### Player Profiles
+- Detailed gaming profiles with preferences
+- Skill level and playstyle indicators
+- Communication preferences
+- Timezone and availability settings
 
-Simply open [Lovable](https://lovable.dev/projects/7cb8044e-804a-46a1-8e28-34ee6d4134cd) and click on Share -> Publish.
+### Matching Algorithm
+- Compatibility scoring based on multiple factors
+- Preference-based filtering
+- Geographic and timezone considerations
 
-## Can I connect a custom domain to my Lovable project?
+## Contributing
 
-Yes, you can!
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## License
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License - see the LICENSE file for details.
