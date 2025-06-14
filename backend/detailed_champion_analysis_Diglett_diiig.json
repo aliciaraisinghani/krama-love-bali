@@ -1,0 +1,351 @@
+{
+  "riot_id": "Diglett#diiig",
+  "puuid": "tUE07Vh78qxMBCWLuVXtCaX1M8vSrIw4u21D2yYDSJRaSVNvLn9Dy-hMUCYYPqH89TSaw0IHcf0HJQ",
+  "matches_analyzed": 20,
+  "champion_stats": [
+    {
+      "name": "Mel",
+      "games": 4,
+      "wins": 1,
+      "win_rate": 25.0,
+      "avg_kda": "15.5/5.5/5.8",
+      "avg_cs": 193.0,
+      "positions": [
+        "MIDDLE"
+      ]
+    },
+    {
+      "name": "Bard",
+      "games": 4,
+      "wins": 2,
+      "win_rate": 50.0,
+      "avg_kda": "5.0/6.0/18.2",
+      "avg_cs": 18.0,
+      "positions": [
+        "Unknown",
+        "UTILITY"
+      ]
+    },
+    {
+      "name": "Aurora",
+      "games": 3,
+      "wins": 1,
+      "win_rate": 33.33333333333333,
+      "avg_kda": "16.0/8.0/10.7",
+      "avg_cs": 82.66666666666667,
+      "positions": [
+        "TOP",
+        "Unknown",
+        "MIDDLE"
+      ]
+    },
+    {
+      "name": "Jhin",
+      "games": 1,
+      "wins": 1,
+      "win_rate": 100.0,
+      "avg_kda": "8.0/0.0/3.0",
+      "avg_cs": 112.0,
+      "positions": [
+        "BOTTOM"
+      ]
+    },
+    {
+      "name": "Volibear",
+      "games": 1,
+      "wins": 1,
+      "win_rate": 100.0,
+      "avg_kda": "11.0/8.0/9.0",
+      "avg_cs": 133.0,
+      "positions": [
+        "TOP"
+      ]
+    },
+    {
+      "name": "Lux",
+      "games": 1,
+      "wins": 0,
+      "win_rate": 0.0,
+      "avg_kda": "3.0/8.0/12.0",
+      "avg_cs": 150.0,
+      "positions": [
+        "MIDDLE"
+      ]
+    },
+    {
+      "name": "MissFortune",
+      "games": 1,
+      "wins": 1,
+      "win_rate": 100.0,
+      "avg_kda": "9.0/6.0/21.0",
+      "avg_cs": 37.0,
+      "positions": [
+        "Unknown"
+      ]
+    },
+    {
+      "name": "Katarina",
+      "games": 1,
+      "wins": 0,
+      "win_rate": 0.0,
+      "avg_kda": "29.0/19.0/18.0",
+      "avg_cs": 70.0,
+      "positions": [
+        "Unknown"
+      ]
+    },
+    {
+      "name": "Seraphine",
+      "games": 1,
+      "wins": 1,
+      "win_rate": 100.0,
+      "avg_kda": "13.0/15.0/57.0",
+      "avg_cs": 38.0,
+      "positions": [
+        "Unknown"
+      ]
+    },
+    {
+      "name": "Teemo",
+      "games": 1,
+      "wins": 0,
+      "win_rate": 0.0,
+      "avg_kda": "16.0/11.0/44.0",
+      "avg_cs": 65.0,
+      "positions": [
+        "Unknown"
+      ]
+    },
+    {
+      "name": "Viktor",
+      "games": 1,
+      "wins": 1,
+      "win_rate": 100.0,
+      "avg_kda": "18.0/9.0/35.0",
+      "avg_cs": 71.0,
+      "positions": [
+        "Unknown"
+      ]
+    },
+    {
+      "name": "Hwei",
+      "games": 1,
+      "wins": 1,
+      "win_rate": 100.0,
+      "avg_kda": "3.0/2.0/13.0",
+      "avg_cs": 216.0,
+      "positions": [
+        "MIDDLE"
+      ]
+    }
+  ],
+  "position_stats": {
+    "BOTTOM": 1,
+    "TOP": 2,
+    "MIDDLE": 7,
+    "UTILITY": 3,
+    "Unknown": 7
+  },
+  "recent_matches": [
+    {
+      "match_id": "NA1_5306990915",
+      "champion": "Jhin",
+      "position": "BOTTOM",
+      "result": "W",
+      "kda": "8/0/3",
+      "cs": 112,
+      "cs_per_min": 7.1413390010627,
+      "duration": 15.683333333333334
+    },
+    {
+      "match_id": "NA1_5305693772",
+      "champion": "Volibear",
+      "position": "TOP",
+      "result": "W",
+      "kda": "11/8/9",
+      "cs": 133,
+      "cs_per_min": 4.288017195056422,
+      "duration": 31.016666666666666
+    },
+    {
+      "match_id": "NA1_5305668572",
+      "champion": "Mel",
+      "position": "MIDDLE",
+      "result": "L",
+      "kda": "26/9/6",
+      "cs": 201,
+      "cs_per_min": 5.601486298188574,
+      "duration": 35.88333333333333
+    },
+    {
+      "match_id": "NA1_5305113848",
+      "champion": "Lux",
+      "position": "MIDDLE",
+      "result": "L",
+      "kda": "3/8/12",
+      "cs": 150,
+      "cs_per_min": 4.939626783754116,
+      "duration": 30.366666666666667
+    },
+    {
+      "match_id": "NA1_5304513254",
+      "champion": "Mel",
+      "position": "MIDDLE",
+      "result": "W",
+      "kda": "15/1/8",
+      "cs": 189,
+      "cs_per_min": 6.08695652173913,
+      "duration": 31.05
+    },
+    {
+      "match_id": "NA1_5304501561",
+      "champion": "Bard",
+      "position": "UTILITY",
+      "result": "L",
+      "kda": "3/7/9",
+      "cs": 18,
+      "cs_per_min": 0.7871720116618076,
+      "duration": 22.866666666666667
+    },
+    {
+      "match_id": "NA1_5303237230",
+      "champion": "Aurora",
+      "position": "Unknown",
+      "result": "L",
+      "kda": "39/14/25",
+      "cs": 60,
+      "cs_per_min": 2.356020942408377,
+      "duration": 25.466666666666665
+    },
+    {
+      "match_id": "NA1_5303230403",
+      "champion": "MissFortune",
+      "position": "Unknown",
+      "result": "W",
+      "kda": "9/6/21",
+      "cs": 37,
+      "cs_per_min": 3.2314410480349345,
+      "duration": 11.45
+    },
+    {
+      "match_id": "NA1_5303217467",
+      "champion": "Katarina",
+      "position": "Unknown",
+      "result": "L",
+      "kda": "29/19/18",
+      "cs": 70,
+      "cs_per_min": 3.0303030303030303,
+      "duration": 23.1
+    },
+    {
+      "match_id": "NA1_5303203462",
+      "champion": "Seraphine",
+      "position": "Unknown",
+      "result": "W",
+      "kda": "13/15/57",
+      "cs": 38,
+      "cs_per_min": 1.4439518682710577,
+      "duration": 26.316666666666666
+    },
+    {
+      "match_id": "NA1_5303186446",
+      "champion": "Teemo",
+      "position": "Unknown",
+      "result": "L",
+      "kda": "16/11/44",
+      "cs": 65,
+      "cs_per_min": 2.496798975672215,
+      "duration": 26.033333333333335
+    },
+    {
+      "match_id": "NA1_5303172448",
+      "champion": "Viktor",
+      "position": "Unknown",
+      "result": "W",
+      "kda": "18/9/35",
+      "cs": 71,
+      "cs_per_min": 3.547044129891757,
+      "duration": 20.016666666666666
+    },
+    {
+      "match_id": "NA1_5302624994",
+      "champion": "Bard",
+      "position": "UTILITY",
+      "result": "L",
+      "kda": "1/8/20",
+      "cs": 22,
+      "cs_per_min": 0.7092960773777539,
+      "duration": 31.016666666666666
+    },
+    {
+      "match_id": "NA1_5301967038",
+      "champion": "Bard",
+      "position": "Unknown",
+      "result": "W",
+      "kda": "11/4/33",
+      "cs": 10,
+      "cs_per_min": 0.5649717514124294,
+      "duration": 17.7
+    },
+    {
+      "match_id": "NA1_5301953818",
+      "champion": "Bard",
+      "position": "UTILITY",
+      "result": "W",
+      "kda": "5/5/11",
+      "cs": 22,
+      "cs_per_min": 0.874751491053678,
+      "duration": 25.15
+    },
+    {
+      "match_id": "NA1_5300174021",
+      "champion": "Hwei",
+      "position": "MIDDLE",
+      "result": "W",
+      "kda": "3/2/13",
+      "cs": 216,
+      "cs_per_min": 6.438152011922504,
+      "duration": 33.55
+    },
+    {
+      "match_id": "NA1_5300155358",
+      "champion": "Mel",
+      "position": "MIDDLE",
+      "result": "L",
+      "kda": "5/8/3",
+      "cs": 201,
+      "cs_per_min": 6.287799791449427,
+      "duration": 31.966666666666665
+    },
+    {
+      "match_id": "NA1_5299599595",
+      "champion": "Aurora",
+      "position": "MIDDLE",
+      "result": "W",
+      "kda": "6/2/3",
+      "cs": 96,
+      "cs_per_min": 6.301969365426697,
+      "duration": 15.233333333333333
+    },
+    {
+      "match_id": "NA1_5299542837",
+      "champion": "Mel",
+      "position": "MIDDLE",
+      "result": "L",
+      "kda": "16/4/6",
+      "cs": 181,
+      "cs_per_min": 6.216370921579851,
+      "duration": 29.116666666666667
+    },
+    {
+      "match_id": "NA1_5299526617",
+      "champion": "Aurora",
+      "position": "TOP",
+      "result": "L",
+      "kda": "3/8/4",
+      "cs": 92,
+      "cs_per_min": 3.817427385892116,
+      "duration": 24.1
+    }
+  ]
+}
