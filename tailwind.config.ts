@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -52,15 +53,16 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
+				// Balinese-inspired color palette
+				balinese: {
+					sunset: '#FF6B35',
+					gold: '#F7931E',
+					earth: '#8B4513',
+					sage: '#87A96B',
+					temple: '#D2691E',
+					ocean: '#4682B4',
+					lotus: '#FFB6C1',
+					bamboo: '#228B22'
 				}
 			},
 			borderRadius: {
@@ -84,11 +86,47 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(20px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'scale-in': {
+					'0%': {
+						transform: 'scale(0.95)',
+						opacity: '0'
+					},
+					'100%': {
+						transform: 'scale(1)',
+						opacity: '1'
+					}
+				},
+				'heart-beat': {
+					'0%, 100%': {
+						transform: 'scale(1)'
+					},
+					'50%': {
+						transform: 'scale(1.1)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.6s ease-out',
+				'scale-in': 'scale-in 0.3s ease-out',
+				'heart-beat': 'heart-beat 1s ease-in-out infinite'
+			},
+			backgroundImage: {
+				'gradient-sunset': 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)',
+				'gradient-earth': 'linear-gradient(135deg, #8B4513 0%, #D2691E 100%)',
+				'gradient-nature': 'linear-gradient(135deg, #87A96B 0%, #228B22 100%)'
 			}
 		}
 	},
