@@ -4,14 +4,20 @@ import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
-import { Crown, Shield, Star, TrendingUp, RefreshCw, Clock, MapPin, MessageCircle, Globe, Sword, TreePine, Zap, Target, Users } from 'lucide-react';
+import { Crown, Shield, Star, TrendingUp, RefreshCw, Clock, MapPin, MessageCircle, Globe, Sword, TreePine, Zap, Target, Users, Settings } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 import { riotApiService, type PlayerStats, getChampionName, getMostPlayedRole, getMostPlayedRoleFromMatches } from '@/lib/riotApi';
+import { PlayerPreferenceTags } from './PlayerPreferenceTags';
+import { PreferencesWizard } from './PreferencesWizard';
+import { PlayerPreferences, DEFAULT_PREFERENCES } from '@/lib/playerPreferences';
 
 const ProfileTab = () => {
   const { toast } = useToast();
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
+  const [playerPreferences, setPlayerPreferences] = useState<PlayerPreferences>(DEFAULT_PREFERENCES);
+  const [showPreferencesForm, setShowPreferencesForm] = useState(false);
+  const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false);
   
   // Check if we have connected account data on component mount
   useEffect(() => {
@@ -45,6 +51,23 @@ const ProfileTab = () => {
         
       } catch (error) {
         console.error('Error parsing saved player stats:', error);
+      }
+    }
+
+    // Load player preferences
+    const savedPreferences = localStorage.getItem('playerPreferences');
+    if (savedPreferences) {
+      try {
+        const preferences = JSON.parse(savedPreferences);
+        setPlayerPreferences(preferences);
+      } catch (error) {
+        console.error('Error parsing saved player preferences:', error);
+      }
+    } else {
+      // If no preferences saved and we have a connected account, show first-time setup
+      if (savedStats) {
+        // Don't automatically show the form, let user click to set preferences
+        setPlayerPreferences(DEFAULT_PREFERENCES);
       }
     }
   }, []);
@@ -81,6 +104,34 @@ const ProfileTab = () => {
       });
     } finally {
       setIsLoadingStats(false);
+    }
+  };
+
+  const handleSavePreferences = (preferences: PlayerPreferences) => {
+    setPlayerPreferences(preferences);
+    localStorage.setItem('playerPreferences', JSON.stringify(preferences));
+    setShowPreferencesForm(false);
+    setIsFirstTimeSetup(false);
+    
+    toast({
+      title: isFirstTimeSetup ? "Preferences Set!" : "Preferences Updated",
+      description: isFirstTimeSetup 
+        ? "Your gaming preferences have been saved. You can edit them anytime from your profile."
+        : "Your gaming preferences have been updated successfully.",
+    });
+  };
+
+  const handleEditPreferences = () => {
+    setShowPreferencesForm(true);
+  };
+
+  const handleCancelPreferences = () => {
+    setShowPreferencesForm(false);
+    if (isFirstTimeSetup) {
+      // If it's first time setup and they cancel, save default preferences
+      setPlayerPreferences(DEFAULT_PREFERENCES);
+      localStorage.setItem('playerPreferences', JSON.stringify(DEFAULT_PREFERENCES));
+      setIsFirstTimeSetup(false);
     }
   };
 
@@ -154,6 +205,20 @@ const ProfileTab = () => {
     
     return roleIcons[role] || roleIcons['Unknown'];
   };
+
+  // Show preferences wizard if requested
+  if (showPreferencesForm) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <PreferencesWizard
+          initialPreferences={playerPreferences}
+          onComplete={handleSavePreferences}
+          onCancel={handleCancelPreferences}
+          playerName={playerStats.account.gameName}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -343,11 +408,21 @@ const ProfileTab = () => {
         </Card>
       </div>
 
-      {/* Right Column - Additional Content Space */}
-      <div className="lg:col-span-2">
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm h-full">
+      {/* Right Column - Player Preferences and Additional Content */}
+      <div className="lg:col-span-2 space-y-6">
+        {/* Player Preferences */}
+        <div>
+          <PlayerPreferenceTags 
+            preferences={playerPreferences}
+            onEdit={handleEditPreferences}
+            showEditButton={true}
+          />
+        </div>
+
+        {/* Additional Stats Placeholder */}
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardContent className="p-6">
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center h-32">
               <div className="text-center">
                 <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold text-foreground mb-2">Additional Stats</h3>

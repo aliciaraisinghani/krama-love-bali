@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 import { riotApiService } from '@/lib/riotApi';
+import { PreferencesSetupModal } from './PreferencesSetupModal';
+import { PlayerPreferences, DEFAULT_PREFERENCES } from '@/lib/playerPreferences';
 
 interface AccountConnectionProps {
   onComplete: () => void;
@@ -38,6 +40,7 @@ const AccountConnection = ({ onComplete }: AccountConnectionProps) => {
     summonerName: string;
     level: number;
   } | null>(null);
+  const [showPreferencesModal, setShowPreferencesModal] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -141,6 +144,14 @@ const AccountConnection = ({ onComplete }: AccountConnectionProps) => {
       });
       return;
     }
+    
+    // Always show preferences setup after account connection
+    setShowPreferencesModal(true);
+  };
+
+  const handlePreferencesSave = (preferences: PlayerPreferences) => {
+    localStorage.setItem('playerPreferences', JSON.stringify(preferences));
+    setShowPreferencesModal(false);
     onComplete();
   };
 
@@ -353,6 +364,14 @@ const AccountConnection = ({ onComplete }: AccountConnectionProps) => {
           </div>
         </div>
       </div>
+
+      {/* Preferences Setup Modal */}
+      <PreferencesSetupModal
+        isOpen={showPreferencesModal}
+        onClose={() => setShowPreferencesModal(false)}
+        onSave={handlePreferencesSave}
+        playerName={riotAccountInfo?.summonerName}
+      />
     </div>
   );
 };
