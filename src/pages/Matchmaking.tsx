@@ -174,6 +174,7 @@ const Matchmaking: React.FC = () => {
   const [showChat, setShowChat] = useState(false);
   const [userRejectedMatch, setUserRejectedMatch] = useState(false);
   const [readyToPlay, setReadyToPlay] = useState(false);
+  const [isLoadingNewMatch, setIsLoadingNewMatch] = useState(false);
   const [formData, setFormData] = useState<MatchmakingFormData>({
     playerType: '',
     champions: '',
@@ -289,6 +290,7 @@ const Matchmaking: React.FC = () => {
     setShowChat(false);
     setUserRejectedMatch(false);
     setReadyToPlay(false);
+    setIsLoadingNewMatch(false);
     setFormData({
       playerType: '',
       champions: '',
@@ -299,24 +301,25 @@ const Matchmaking: React.FC = () => {
 
   const handleFindNewMatch = async () => {
     setTimerActive(false);
-    setCurrentStep('loading');
+    setIsLoadingNewMatch(true);
     
     // Simulate loading time
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
     if (currentResultIndex < searchResults.length - 1) {
       const nextIndex = currentResultIndex + 1;
       setCurrentResultIndex(nextIndex);
       setCurrentMatch(searchResults[nextIndex]);
-      setCurrentStep('results');
       setTimeLeft(30);
       setTimerActive(true);
+      setIsLoadingNewMatch(false);
       
       toast({
         title: "New Match Found!",
         description: `Showing next potential match`,
       });
     } else {
+      setIsLoadingNewMatch(false);
       toast({
         title: "No More Matches",
         description: "You've seen all available matches. Try a new search!",
@@ -422,41 +425,51 @@ const Matchmaking: React.FC = () => {
     });
   };
 
-  // Generate mock review data for a player
+  // Generate mock review data for a player (static based on riot_id)
   const generatePlayerReviews = (riotId: string): PlayerReview[] => {
     const reviewers = [
       'ShadowStrike92', 'MysticSupport', 'JungleKingXX', 'WardMaster', 
       'CriticalHit99', 'SpellThief', 'FlashBangGG', 'TankCommander'
     ];
     
-    const numReviews = Math.floor(Math.random() * 6) + 3; // 3-8 reviews
+    const comments = [
+      'Great teammate! Always positive and helps the team.',
+      'Solid player with good game sense.',
+      'Fun to play with, good communication.',
+      'Reliable duo partner, never flames.',
+      'Good mechanical skills and team player.',
+      'Always tries their best and stays positive.'
+    ];
+    
+    // Create a simple hash from riot_id for consistent randomness
+    const hash = riotId.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    
+    const numReviews = Math.abs(hash % 6) + 3; // 3-8 reviews
     const reviews: PlayerReview[] = [];
     
     for (let i = 0; i < numReviews; i++) {
-      const reviewer = reviewers[Math.floor(Math.random() * reviewers.length)];
-      const date = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000); // Last 30 days
+      const seedBase = Math.abs(hash + i * 1000);
+      const reviewer = reviewers[seedBase % reviewers.length];
+      const daysSinceReview = (seedBase % 30) + 1; // 1-30 days ago
+      const date = new Date(Date.now() - daysSinceReview * 24 * 60 * 60 * 1000);
       
       reviews.push({
         id: `${i + 1}`,
         reviewerName: reviewer,
         date: date.toISOString().split('T')[0],
         ratings: {
-          fun: Math.floor(Math.random() * 3) + 3, // 3-5
-          helpful: Math.floor(Math.random() * 3) + 3, // 3-5
-          leader: Math.floor(Math.random() * 5) + 1, // 1-5
-          toxic: Math.floor(Math.random() * 2) + 1, // 1-2 (low toxicity)
-          troll: Math.floor(Math.random() * 2) + 1, // 1-2 (low troll)
-          chill: Math.floor(Math.random() * 3) + 3, // 3-5
+          fun: (seedBase % 3) + 3, // 3-5
+          helpful: ((seedBase + 100) % 3) + 3, // 3-5
+          leader: ((seedBase + 200) % 5) + 1, // 1-5
+          toxic: ((seedBase + 300) % 2) + 1, // 1-2 (low toxicity)
+          troll: ((seedBase + 400) % 2) + 1, // 1-2 (low troll)
+          chill: ((seedBase + 500) % 3) + 3, // 3-5
         },
-        comment: [
-          'Great teammate! Always positive and helps the team.',
-          'Solid player with good game sense.',
-          'Fun to play with, good communication.',
-          'Reliable duo partner, never flames.',
-          'Good mechanical skills and team player.',
-          'Always tries their best and stays positive.'
-        ][Math.floor(Math.random() * 6)],
-        gamesPlayed: Math.floor(Math.random() * 100) + 20
+        comment: comments[seedBase % comments.length],
+        gamesPlayed: (seedBase % 100) + 20
       });
     }
     
@@ -558,29 +571,29 @@ const Matchmaking: React.FC = () => {
     return reasons;
   };
 
-  // Timeout Screen
+    // Timeout Screen
   if (currentStep === 'timeout') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-800 to-indigo-700 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <Clock className="w-20 h-20 text-blue-300 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-white mb-4">Time to Move On!</h1>
-            <p className="text-blue-200 text-lg">
+            <Clock className="w-20 h-20 text-blue-400 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-slate-200 mb-4">Time to Move On!</h1>
+            <p className="text-slate-400 text-lg">
               No worries! Let's find you another great match. There are plenty of amazing teammates waiting.
             </p>
           </div>
           
           <div className="space-y-3">
-            <Button 
-              onClick={handleNewSearch}
-              size="lg"
-              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold px-8 py-3 w-full"
-            >
+          <Button 
+            onClick={handleNewSearch}
+            size="lg"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 w-full"
+          >
               <Search className="w-5 h-5 mr-2" />
               Find Another Match
-            </Button>
-            <p className="text-blue-300/60 text-sm">
+          </Button>
+            <p className="text-slate-500 text-sm">
               ✨ New matches are found every few seconds!
             </p>
           </div>
@@ -592,11 +605,11 @@ const Matchmaking: React.FC = () => {
   // Loading Screen
   if (currentStep === 'loading') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-teal-800 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
         <div className="text-center">
-          <Loader2 className="w-16 h-16 text-white animate-spin mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Finding Your Next Match...</h2>
-          <p className="text-white/70">Searching through thousands of players</p>
+          <Loader2 className="w-16 h-16 text-blue-400 animate-spin mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-slate-200 mb-2">Finding Your Next Match...</h2>
+          <p className="text-slate-400">Searching through thousands of players</p>
         </div>
       </div>
     );
@@ -709,6 +722,27 @@ const Matchmaking: React.FC = () => {
     );
   }
 
+  // Skeleton Components
+  const SkeletonAvatar = () => (
+    <div className="w-32 h-32 bg-slate-800 rounded-full animate-pulse border-4 border-slate-700"></div>
+  );
+
+  const SkeletonBadge = () => (
+    <div className="h-6 w-24 bg-slate-800 rounded-full animate-pulse"></div>
+  );
+
+  const SkeletonText = ({ className }: { className?: string }) => (
+    <div className={`bg-slate-800 rounded animate-pulse ${className}`}></div>
+  );
+
+  const SkeletonCard = ({ children }: { children: React.ReactNode }) => (
+    <Card className="border-slate-700 bg-slate-900/50">
+      <CardContent className="p-6">
+        {children}
+      </CardContent>
+    </Card>
+  );
+
   // Results Screen
   if (currentStep === 'results') {
     const primaryRank = getPrimaryRank();
@@ -716,8 +750,8 @@ const Matchmaking: React.FC = () => {
     
     if (!currentMatch) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-teal-800 flex items-center justify-center p-4">
-          <div className="text-center text-white">
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+          <div className="text-center text-slate-200">
             <p>No matches found. Please try a new search.</p>
             <Button onClick={handleNewSearch} className="mt-4">
               New Search
@@ -731,21 +765,21 @@ const Matchmaking: React.FC = () => {
     const compatibilityReasons = getCompatibilityReasons(currentMatch);
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-teal-800 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
         <div className="w-full max-w-7xl flex gap-6">
           <div className="flex-1">
             {/* Timer - only show if both haven't accepted */}
             {!matchAccepted && (
               <div className="text-center mb-6">
-                <Card className="bg-black/20 border-white/20 backdrop-blur-sm max-w-xs mx-auto">
+                <Card className="border-slate-700 bg-slate-900/50 max-w-xs mx-auto">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-center gap-2">
-                      <Clock className={`w-5 h-5 ${timeLeft <= 10 ? 'text-red-400' : 'text-white'}`} />
-                      <span className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-red-400' : 'text-white'}`}>
+                      <Clock className={`w-5 h-5 ${timeLeft <= 10 ? 'text-red-400' : 'text-slate-300'}`} />
+                      <span className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-red-400' : 'text-slate-200'}`}>
                         0:{timeLeft.toString().padStart(2, '0')}
                       </span>
                     </div>
-                    <p className="text-white/60 text-sm mt-1">
+                    <p className="text-slate-400 text-sm mt-1">
                       {userAccepted ? 'Waiting for match...' : 'Time to decide'}
                     </p>
                   </CardContent>
@@ -756,7 +790,7 @@ const Matchmaking: React.FC = () => {
             {/* Match Status */}
             {matchAccepted && (
               <div className="text-center mb-6">
-                <Card className="bg-green-500/20 border-green-400/30 backdrop-blur-sm max-w-xs mx-auto">
+                <Card className="border-green-700/50 bg-green-900/20 max-w-xs mx-auto">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-center gap-2">
                       <Check className="w-6 h-6 text-green-400" />
@@ -769,7 +803,7 @@ const Matchmaking: React.FC = () => {
             )}
 
           {/* VS Layout */}
-          <div className="flex items-center justify-center gap-8 mb-8">
+          <div className="flex items-start justify-center gap-8 mb-6">
             {/* User Profile */}
             <div className="flex flex-col items-center">
               <div className="relative mb-4">
@@ -786,40 +820,50 @@ const Matchmaking: React.FC = () => {
                 <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
                   <Badge className="bg-blue-600 text-white px-3 py-1">
                     <Star className="w-4 h-4 mr-1" />
-                    {primaryRank ? primaryRank.leaguePoints : '0'}
+                    FLEX
                   </Badge>
                 </div>
               </div>
-              <div className="text-center">
-                <p className="text-white font-semibold text-lg">
+              <div className="text-center min-h-[120px] flex flex-col justify-start">
+                <p className="text-slate-200 font-semibold text-lg mb-2">
                   {playerStats ? playerStats.account.gameName : 'YourName'}
                 </p>
-                <div className="flex items-center gap-1 text-white/80 mb-1">
-                  <span>🇺🇸</span>
-                  <span>NA</span>
-                </div>
+                
+                {/* Player Rank */}
                 {primaryRank && (
-                  <div className="text-sm text-white/70">
-                    <div>{primaryRank.tier} {primaryRank.rank}</div>
-                    <div>{winRate}% WR</div>
+                  <div className="mb-2">
+                    <Badge variant="outline" className="border-blue-400/50 text-blue-400 bg-blue-400/10">
+                      {primaryRank.tier} {primaryRank.rank} • {primaryRank.leaguePoints} LP
+                    </Badge>
                   </div>
                 )}
+                
+                <div className="flex items-center justify-center gap-2 text-slate-300 mb-1">
+                  <span>🇺🇸</span>
+                  <span>NA</span>
+                  {primaryRank && (
+                    <>
+                      <span>•</span>
+                      <span className="text-green-400">{winRate}% WR</span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
             {/* Shuffle Icon and Match Percentage */}
-            <div className="flex flex-col items-center gap-4">
-              <div className="p-4 bg-white/10 rounded-full backdrop-blur-sm">
-                <Shuffle className="w-12 h-12 text-white animate-pulse" />
+            <div className="flex flex-col items-center justify-center gap-4 mt-16">
+              <div className="p-4 bg-slate-800/50 border border-slate-700 rounded-full">
+                <Shuffle className="w-12 h-12 text-slate-300 animate-pulse" />
               </div>
               <div className="relative group">
                 <div className="text-center cursor-help">
                   <div className="text-3xl font-bold text-green-400">{matchPercentage}%</div>
-                  <div className="text-sm text-white/60">Match</div>
+                  <div className="text-sm text-slate-400">Match</div>
                 </div>
                 {/* Hover Tooltip */}
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                  <div className="bg-black/95 text-white text-sm rounded-lg p-4 whitespace-nowrap shadow-xl border border-white/20 backdrop-blur-sm">
+                  <div className="bg-slate-900 text-slate-200 text-sm rounded-lg p-4 whitespace-nowrap shadow-xl border border-slate-700">
                     <div className="space-y-2 min-w-[280px]">
                       <div className="font-semibold text-green-400 mb-2">Why you match:</div>
                       {compatibilityReasons.map((item, index) => (
@@ -828,18 +872,18 @@ const Matchmaking: React.FC = () => {
                           <span className="text-green-400">+{item.score}%</span>
                         </div>
                       ))}
-                      <div className="border-t border-white/20 pt-2 mt-2">
+                      <div className="border-t border-slate-700 pt-2 mt-2">
                         <div className="flex justify-between gap-4 font-semibold">
                           <span>Total Match Score:</span>
                           <span className="text-green-400">{matchPercentage}%</span>
                         </div>
                       </div>
-                      <div className="text-xs text-white/60 mt-2">
+                      <div className="text-xs text-slate-400 mt-2">
                         Based on playstyle, role, and performance data
                       </div>
                     </div>
                     {/* Tooltip Arrow */}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/95"></div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
                   </div>
                 </div>
               </div>
@@ -848,129 +892,439 @@ const Matchmaking: React.FC = () => {
             {/* Matched Profile */}
             <div className="flex flex-col items-center">
               <div className="relative mb-4">
-                <Avatar className="w-32 h-32 border-4 border-pink-400">
-                  <img 
-                    src={getPlayerIconUrl(currentMatch.riot_id)}
-                    alt="Matched Player"
-                    className="w-full h-full rounded-full"
-                    onError={(e) => {
-                      e.currentTarget.src = "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/1.png";
-                    }}
-                  />
-                  <AvatarFallback className="bg-pink-500 text-white text-2xl">
-                    {currentMatch.riot_id.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                {isLoadingNewMatch ? (
+                  <SkeletonAvatar />
+                ) : (
+                  <Avatar className="w-32 h-32 border-4 border-pink-400">
+                    <img 
+                      src={getPlayerIconUrl(currentMatch.riot_id)}
+                      alt="Matched Player"
+                      className="w-full h-full rounded-full"
+                      onError={(e) => {
+                        e.currentTarget.src = "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/1.png";
+                      }}
+                    />
+                    <AvatarFallback className="bg-pink-500 text-white text-2xl">
+                      {currentMatch.riot_id.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
                 {/* Green check when match accepts */}
-                {matchAccepted && (
+                {matchAccepted && !isLoadingNewMatch && (
                   <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-2 border-white flex items-center justify-center animate-pulse">
                     <Check className="w-5 h-5 text-white" />
                   </div>
                 )}
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-pink-600 text-white px-3 py-1">
-                    <Star className="w-4 h-4 mr-1" />
-                    {currentMatch.stats.primary_role}
-                  </Badge>
-                </div>
+                {!isLoadingNewMatch && (
+                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-pink-600 text-white px-3 py-1">
+                      <Star className="w-4 h-4 mr-1" />
+                      {currentMatch.stats.primary_role}
+                    </Badge>
+                  </div>
+                )}
               </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <button
-                    onClick={() => window.open(getOpGgUrl(currentMatch.riot_id), '_blank')}
-                    className="text-white font-semibold text-lg hover:text-blue-300 transition-colors flex items-center gap-1"
-                  >
-                    {currentMatch.riot_id.split('#')[0]}
-                    <ExternalLink className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => window.open(getDiscordUrl(), '_blank')}
-                    className="text-purple-300 hover:text-purple-200 transition-colors"
-                  >
-                    <DiscordLogo className="w-5 h-5" />
-                  </button>
-                </div>
-                <div className="flex items-center gap-1 text-white/80 mb-1">
-                  <span>🇺🇸</span>
-                  <span>NA</span>
-                </div>
-                <div className="text-sm text-white/70">
-                  <div>{currentMatch.analysis.performance_trend}</div>
-                  <div>{currentMatch.stats.most_played_champions.slice(0, 2).join(', ')}</div>
-                </div>
+              <div className="text-center min-h-[120px] flex flex-col justify-start">
+                {isLoadingNewMatch ? (
+                  <div className="space-y-2">
+                    <SkeletonText className="h-6 w-32 mx-auto" />
+                    <SkeletonBadge />
+                    <SkeletonText className="h-4 w-24 mx-auto" />
+                    <SkeletonText className="h-4 w-28 mx-auto" />
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <button
+                        onClick={() => window.open(getOpGgUrl(currentMatch.riot_id), '_blank')}
+                        className="text-white font-semibold text-lg hover:text-blue-300 transition-colors flex items-center gap-1"
+                      >
+                        {currentMatch.riot_id.split('#')[0]}
+                        <ExternalLink className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => window.open(getDiscordUrl(), '_blank')}
+                        className="text-purple-300 hover:text-purple-200 transition-colors"
+                      >
+                        <DiscordLogo className="w-5 h-5" />
+                      </button>
+                    </div>
+                    
+                    {/* Player Rank */}
+                    <div className="mb-2">
+                      <Badge variant="outline" className="border-yellow-400/50 text-yellow-400 bg-yellow-400/10">
+                        Gold II • 1,247 LP
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center justify-center gap-2 text-slate-300 mb-1">
+                      <span>🇺🇸</span>
+                      <span>NA</span>
+                      <span>•</span>
+                      <span className="text-green-400">68% WR</span>
+                    </div>
+                    <div className="text-sm text-slate-400">
+                      <div>{currentMatch.analysis.performance_trend}</div>
+                      <div>{currentMatch.stats.most_played_champions.slice(0, 2).join(', ')}</div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
 
+          {/* Quick Action Buttons */}
+          {!matchAccepted && !isLoadingNewMatch && (
+            <div className="flex justify-center gap-4 mb-8">
+              <Button 
+                onClick={handleFindNewMatch}
+                disabled={isLoadingNextMatch || userAccepted}
+                variant="outline"
+                className="border-red-400/50 text-red-400 hover:bg-red-400/10 px-8 py-3"
+              >
+                <X className="w-4 h-4 mr-2" />
+                Pass
+              </Button>
+              <Button 
+                onClick={handleAcceptMatch}
+                disabled={userAccepted}
+                className={`px-8 py-3 ${
+                  userAccepted 
+                    ? 'bg-gray-500 text-gray-300 cursor-not-allowed' 
+                    : 'bg-green-600 hover:bg-green-700'
+                }`}
+              >
+                <Check className="w-4 h-4 mr-2" />
+                {userAccepted ? 'Waiting for Match...' : 'Accept Match'}
+              </Button>
+            </div>
+          )}
+
+          {/* Quick Loading State */}
+          {isLoadingNewMatch && (
+            <div className="flex justify-center mb-8">
+              <div className="flex items-center gap-3 text-slate-400">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Finding your next match...</span>
+              </div>
+            </div>
+          )}
+
+          {/* Quick Post-Match Actions */}
+          {matchAccepted && !readyToPlay && !isLoadingNewMatch && (
+            <div className="flex justify-center gap-4 mb-8">
+              <Button 
+                onClick={handleRejectMatch}
+                variant="outline"
+                className="border-red-400/50 text-red-400 hover:bg-red-400/10 px-6 py-3"
+              >
+                <ThumbsDown className="w-4 h-4 mr-2" />
+                Not a Good Fit
+              </Button>
+              
+              {!showChat && (
+                <Button 
+                  onClick={() => setShowChat(true)}
+                  className="bg-blue-600 hover:bg-blue-700 px-6 py-3"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Start Chatting
+                </Button>
+              )}
+              
+              <Button 
+                onClick={handleReadyToPlay}
+                className="bg-green-600 hover:bg-green-700 px-6 py-3"
+              >
+                <Gamepad2 className="w-4 h-4 mr-2" />
+                Ready to Play!
+              </Button>
+            </div>
+          )}
+
+          {/* Quick Ready to Play State */}
+          {readyToPlay && !isLoadingNewMatch && (
+            <div className="flex justify-center mb-8">
+              <div className="bg-green-500/20 border border-green-400/30 rounded-lg p-4">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <UserCheck className="w-6 h-6 text-green-400" />
+                  <span className="text-green-400 font-semibold">Ready to Queue!</span>
+                </div>
+                <p className="text-green-300/80 text-sm mb-3 text-center">
+                  Discord info exchanged! Time to dominate the Rift together.
+                </p>
+                <div className="flex justify-center gap-3">
+                  <Button 
+                    onClick={() => window.open(getDiscordUrl(), '_blank')}
+                    size="sm"
+                    className="bg-purple-500 hover:bg-purple-600"
+                  >
+                    Open Discord
+                  </Button>
+                  <Button 
+                    onClick={handleNewSearch}
+                    size="sm"
+                    variant="outline"
+                    className="border-white/30 text-white hover:bg-white/10"
+                  >
+                    Find Another
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Player Details */}
           <div className="mb-8">
-            <Card className="bg-black/20 border-white/20 backdrop-blur-sm max-w-6xl mx-auto">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Left Column - Bio & Playstyle */}
-                  <div>
-                    <h3 className="text-white font-semibold text-lg mb-3">About This Player</h3>
-                    <p className="text-white/80 mb-4">{currentMatch.bio}</p>
-                    <p className="text-white/70 text-sm mb-4">{currentMatch.descriptions.playstyle}</p>
-                    
-                    <div className="mb-4">
-                      <h4 className="text-white font-medium mb-2">Top Champions:</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {currentMatch.champion_details.slice(0, 3).map((champ, index) => (
-                          <Badge key={index} variant="outline" className="text-white border-white/30">
-                            {champ.name} ({champ.win_rate.toFixed(0)}% WR)
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-
+            <div className="max-w-7xl mx-auto space-y-4">
+              {/* Bio Section */}
+              {isLoadingNewMatch ? (
+                <SkeletonCard>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <h4 className="text-white font-medium mb-2">Strengths & Weaknesses:</h4>
-                      <p className="text-green-400 text-sm mb-1">✓ {currentMatch.descriptions.compatibility}</p>
-                      <p className="text-orange-400 text-sm">⚠ {currentMatch.descriptions.cons}</p>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-5 h-5 bg-slate-700 rounded animate-pulse"></div>
+                        <SkeletonText className="h-6 w-32" />
+                      </div>
+                      <div className="space-y-2">
+                        <SkeletonText className="h-4 w-full" />
+                        <SkeletonText className="h-4 w-5/6" />
+                        <SkeletonText className="h-4 w-4/5" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-5 h-5 bg-slate-700 rounded animate-pulse"></div>
+                        <SkeletonText className="h-6 w-24" />
+                      </div>
+                      <div className="space-y-2">
+                        <SkeletonText className="h-4 w-full" />
+                        <SkeletonText className="h-4 w-3/4" />
+                        <SkeletonText className="h-4 w-5/6" />
+                      </div>
                     </div>
                   </div>
-
-                  {/* Middle Column - Performance Stats */}
-                  <div>
-                    <h3 className="text-white font-semibold text-lg mb-3">Performance Stats</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-white/70">Champion Pool:</span>
-                        <span className="text-white">{currentMatch.analysis.champion_pool_size} champions</span>
+                </SkeletonCard>
+              ) : (
+                <Card className="border-slate-700 bg-slate-900/50">
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h3 className="text-white font-semibold text-lg mb-3 flex items-center gap-2">
+                          <Users className="w-5 h-5 text-blue-400" />
+                          About This Player
+                        </h3>
+                        <p className="text-slate-300 text-sm leading-relaxed">{currentMatch.bio}</p>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-white/70">Pace Preference:</span>
-                        <span className="text-white">{currentMatch.analysis.pace_preference}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-white/70">Current Trend:</span>
-                        <span className="text-green-400">{currentMatch.analysis.performance_trend}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-white/70">Avg CS/min:</span>
-                        <span className="text-white">{currentMatch.stats.avg_cs_per_minute.toFixed(1)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-white/70">Skill Level:</span>
-                        <span className="text-blue-400">{currentMatch.analysis.mechanical_skill_level}/10</span>
+                      <div>
+                        <h3 className="text-white font-semibold text-lg mb-3 flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-purple-400" />
+                          Playstyle
+                        </h3>
+                        <p className="text-slate-300 text-sm leading-relaxed">{currentMatch.descriptions.playstyle}</p>
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+              )}
 
-                    <div className="mt-4">
-                      <h4 className="text-white font-medium mb-2">Recent Adaptations:</h4>
-                      <div className="space-y-1">
-                        {currentMatch.analysis.recent_champion_shifts.slice(0, 3).map((shift, index) => (
-                          <div key={index} className="text-sm text-blue-300">• {shift}</div>
+              {/* Strengths & Weaknesses */}
+              {isLoadingNewMatch ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <SkeletonCard>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-4 h-4 bg-slate-700 rounded animate-pulse"></div>
+                      <SkeletonText className="h-5 w-20" />
+                    </div>
+                    <div className="space-y-2">
+                      <SkeletonText className="h-4 w-full" />
+                      <SkeletonText className="h-4 w-3/4" />
+                    </div>
+                  </SkeletonCard>
+                  <SkeletonCard>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-4 h-4 bg-slate-700 rounded animate-pulse"></div>
+                      <SkeletonText className="h-5 w-28" />
+                    </div>
+                    <div className="space-y-2">
+                      <SkeletonText className="h-4 w-full" />
+                      <SkeletonText className="h-4 w-4/5" />
+                    </div>
+                  </SkeletonCard>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="border-green-700/50 bg-green-900/20">
+                    <CardContent className="p-4">
+                      <h4 className="text-green-400 font-medium mb-2 flex items-center gap-2">
+                        <Check className="w-4 h-4" />
+                        Strengths
+                      </h4>
+                      <p className="text-green-300/80 text-sm">{currentMatch.descriptions.compatibility}</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-orange-700/50 bg-orange-900/20">
+                    <CardContent className="p-4">
+                      <h4 className="text-orange-400 font-medium mb-2 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        Watch Out For
+                      </h4>
+                      <p className="text-orange-300/80 text-sm">{currentMatch.descriptions.cons}</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Performance & Reviews Grid */}
+              {isLoadingNewMatch ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Performance Stats Skeleton */}
+                  <SkeletonCard>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-5 h-5 bg-slate-700 rounded animate-pulse"></div>
+                      <SkeletonText className="h-6 w-36" />
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {/* Champions Skeleton */}
+                      <div>
+                        <SkeletonText className="h-4 w-28 mb-2" />
+                        <div className="flex flex-wrap gap-2">
+                          {[1, 2, 3, 4].map((i) => (
+                            <SkeletonText key={i} className="h-6 w-20" />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Stats Grid Skeleton */}
+                      <div className="grid grid-cols-2 gap-4">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="bg-slate-800/50 rounded-lg p-3">
+                            <SkeletonText className="h-5 w-8 mb-1" />
+                            <SkeletonText className="h-3 w-16" />
+                          </div>
                         ))}
                       </div>
-                    </div>
-                  </div>
 
-                  {/* Right Column - Community Reviews */}
-                  <div>
-                    <h3 className="text-white font-semibold text-lg mb-3 flex items-center gap-2">
+                      {/* Recent Adaptations Skeleton */}
+                      <div>
+                        <SkeletonText className="h-4 w-32 mb-2" />
+                        <div className="space-y-1">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <div className="w-1 h-1 bg-slate-700 rounded-full"></div>
+                              <SkeletonText className="h-3 w-40" />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </SkeletonCard>
+
+                  {/* Community Reviews Skeleton */}
+                  <SkeletonCard>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-5 h-5 bg-slate-700 rounded animate-pulse"></div>
+                      <SkeletonText className="h-6 w-36" />
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {/* Rating Grid Skeleton */}
+                      <div className="grid grid-cols-2 gap-3">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="bg-slate-800/50 rounded-lg p-3 text-center">
+                            <SkeletonText className="h-6 w-8 mx-auto mb-1" />
+                            <SkeletonText className="h-3 w-12 mx-auto" />
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Recent Comments Skeleton */}
+                      <div className="space-y-3">
+                        <SkeletonText className="h-4 w-28" />
+                        {[1, 2].map((i) => (
+                          <div key={i} className="bg-slate-800/30 rounded-lg p-3 border border-slate-700/50">
+                            <div className="flex items-center justify-between mb-2">
+                              <SkeletonText className="h-3 w-24" />
+                              <SkeletonText className="h-4 w-16" />
+                            </div>
+                            <div className="space-y-1">
+                              <SkeletonText className="h-3 w-full" />
+                              <SkeletonText className="h-3 w-3/4" />
+                            </div>
+                          </div>
+                        ))}
+                        <div className="text-center">
+                          <SkeletonText className="h-3 w-32 mx-auto" />
+                        </div>
+                      </div>
+                    </div>
+                  </SkeletonCard>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Performance Stats */}
+                <Card className="border-slate-700 bg-slate-900/50">
+                  <CardContent className="p-6">
+                    <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
                       <Star className="w-5 h-5 text-yellow-400" />
+                      Performance Stats
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      {/* Champions */}
+                      <div>
+                        <h4 className="text-slate-300 font-medium text-sm mb-2">Top Champions</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {currentMatch.champion_details.slice(0, 4).map((champ, index) => (
+                            <Badge key={index} variant="secondary" className="bg-slate-800 text-slate-300 border-slate-600">
+                              {champ.name} ({champ.win_rate.toFixed(0)}%)
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Stats Grid */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-slate-800/50 rounded-lg p-3">
+                          <div className="text-blue-400 font-semibold">{currentMatch.analysis.champion_pool_size}</div>
+                          <div className="text-slate-400 text-xs">Champion Pool</div>
+                        </div>
+                        <div className="bg-slate-800/50 rounded-lg p-3">
+                          <div className="text-purple-400 font-semibold">{currentMatch.analysis.mechanical_skill_level}/10</div>
+                          <div className="text-slate-400 text-xs">Skill Level</div>
+                        </div>
+                        <div className="bg-slate-800/50 rounded-lg p-3">
+                          <div className="text-green-400 font-semibold">{currentMatch.stats.avg_cs_per_minute.toFixed(1)}</div>
+                          <div className="text-slate-400 text-xs">CS per min</div>
+                        </div>
+                        <div className="bg-slate-800/50 rounded-lg p-3">
+                          <div className="text-orange-400 font-semibold">{currentMatch.analysis.pace_preference}</div>
+                          <div className="text-slate-400 text-xs">Pace Style</div>
+                        </div>
+                      </div>
+
+                      {/* Recent Adaptations */}
+                      <div>
+                        <h4 className="text-slate-300 font-medium text-sm mb-2">Recent Adaptations</h4>
+                        <div className="space-y-1">
+                          {currentMatch.analysis.recent_champion_shifts.slice(0, 3).map((shift, index) => (
+                            <div key={index} className="text-slate-400 text-xs flex items-center gap-2">
+                              <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                              {shift}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Community Reviews */}
+                <Card className="border-slate-700 bg-slate-900/50">
+                  <CardContent className="p-6">
+                    <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+                      <MessageCircle className="w-5 h-5 text-green-400" />
                       Community Reviews
                     </h3>
                     
@@ -980,64 +1334,58 @@ const Matchmaking: React.FC = () => {
                       
                       return (
                         <div className="space-y-4">
-                          {/* Quick Rating Overview */}
+                          {/* Rating Grid */}
                           <div className="grid grid-cols-2 gap-3">
-                            <div className="bg-white/10 rounded-lg p-3 text-center">
+                            <div className="bg-slate-800/50 rounded-lg p-3 text-center">
                               <div className="text-green-400 font-bold text-lg">{avgRatings.fun.toFixed(1)}</div>
-                              <div className="text-white/60 text-xs">Fun to Play</div>
+                              <div className="text-slate-400 text-xs">Fun</div>
                             </div>
-                            <div className="bg-white/10 rounded-lg p-3 text-center">
+                            <div className="bg-slate-800/50 rounded-lg p-3 text-center">
                               <div className="text-blue-400 font-bold text-lg">{avgRatings.helpful.toFixed(1)}</div>
-                              <div className="text-white/60 text-xs">Helpful</div>
+                              <div className="text-slate-400 text-xs">Helpful</div>
                             </div>
-                            <div className="bg-white/10 rounded-lg p-3 text-center">
+                            <div className="bg-slate-800/50 rounded-lg p-3 text-center">
                               <div className="text-purple-400 font-bold text-lg">{avgRatings.leader.toFixed(1)}</div>
-                              <div className="text-white/60 text-xs">Leadership</div>
+                              <div className="text-slate-400 text-xs">Leader</div>
                             </div>
-                            <div className="bg-white/10 rounded-lg p-3 text-center">
+                            <div className="bg-slate-800/50 rounded-lg p-3 text-center">
                               <div className="text-green-400 font-bold text-lg">{avgRatings.chill.toFixed(1)}</div>
-                              <div className="text-white/60 text-xs">Chill</div>
+                              <div className="text-slate-400 text-xs">Chill</div>
                             </div>
                           </div>
 
-                          {/* Recent Reviews */}
-                          <div>
-                            <h4 className="text-white/80 font-medium text-sm mb-2">Recent Feedback:</h4>
-                            <div className="space-y-2">
-                              {reviews.slice(0, 2).map((review) => (
-                                <div key={review.id} className="bg-white/5 rounded-lg p-3">
-                                  <div className="flex items-center justify-between mb-1">
-                                    <span className="text-white/80 text-xs font-medium">{review.reviewerName}</span>
-                                    <span className="text-white/50 text-xs">
-                                      {new Date(review.date).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                  <p className="text-white/70 text-xs">"{review.comment}"</p>
-                                  <div className="flex items-center gap-2 mt-2">
-                                    <Badge variant="outline" className="text-xs border-white/30 text-white/60">
-                                      {review.gamesPlayed} games
-                                    </Badge>
-                                  </div>
+                          {/* Recent Comments */}
+                          <div className="space-y-3">
+                            <h4 className="text-slate-300 font-medium text-sm">Recent Feedback</h4>
+                            {reviews.slice(0, 2).map((review) => (
+                              <div key={review.id} className="bg-slate-800/30 rounded-lg p-3 border border-slate-700/50">
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-slate-300 text-xs font-medium">{review.reviewerName}</span>
+                                  <Badge variant="outline" className="text-xs border-slate-600 text-slate-400">
+                                    {review.gamesPlayed} games
+                                  </Badge>
                                 </div>
-                              ))}
-                            </div>
-                            <div className="text-center mt-3">
-                              <span className="text-white/50 text-xs">
-                                Based on {reviews.length} recent reviews
+                                <p className="text-slate-400 text-xs leading-relaxed">"{review.comment}"</p>
+                              </div>
+                            ))}
+                            <div className="text-center">
+                              <span className="text-slate-500 text-xs">
+                                {reviews.length} total reviews this month
                               </span>
                             </div>
                           </div>
                         </div>
                       );
                     })()}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              </div>
+              )}
+            </div>
           </div>
 
             {/* Action Buttons */}
-            {!matchAccepted && (
+            {!matchAccepted && !isLoadingNewMatch && (
               <div className="flex justify-center gap-4">
                 <Button 
                   onClick={handleFindNewMatch}
@@ -1054,12 +1402,22 @@ const Matchmaking: React.FC = () => {
                   className={`px-8 py-3 ${
                     userAccepted 
                       ? 'bg-gray-500 text-gray-300 cursor-not-allowed' 
-                      : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                      : 'bg-green-600 hover:bg-green-700'
                   }`}
                 >
                   <Check className="w-4 h-4 mr-2" />
                   {userAccepted ? 'Waiting for Match...' : 'Accept Match'}
                 </Button>
+              </div>
+            )}
+
+            {/* Loading State */}
+            {isLoadingNewMatch && (
+              <div className="flex justify-center">
+                <div className="flex items-center gap-3 text-slate-400">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Finding your next match...</span>
+                </div>
               </div>
             )}
 
@@ -1080,7 +1438,7 @@ const Matchmaking: React.FC = () => {
                     {!showChat && (
                       <Button 
                         onClick={() => setShowChat(true)}
-                        className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 px-6 py-3"
+                        className="bg-blue-600 hover:bg-blue-700 px-6 py-3"
                       >
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Start Chatting
@@ -1089,7 +1447,7 @@ const Matchmaking: React.FC = () => {
                     
                     <Button 
                       onClick={handleReadyToPlay}
-                      className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 px-6 py-3"
+                      className="bg-green-600 hover:bg-green-700 px-6 py-3"
                     >
                       <Gamepad2 className="w-4 h-4 mr-2" />
                       Ready to Play!

@@ -63,12 +63,12 @@ def test_improved_search(query: str, limit: int = 5):
             data = response.json()
             
             print(f"📊 Search Results:")
-            print(f"   Query: {data['query']}")
-            print(f"   Players searched: {data['total_players_searched']}")
-            print(f"   Results returned: {data['results_returned']}")
+            print(f"   Query: '{query}'")
+            print(f"   Players searched: {data['total_players']}")
+            print(f"   Results returned: {len(data['results'])}")
             
             print(f"\n🏆 TOP MATCHES:")
-            for player in data['players'][:5]:
+            for player in data['results'][:5]:
                 print(f"\n   #{player['rank']} - {player['riot_id']} (Score: {player['similarity_score']:.3f})")
                 print(f"      🎯 Role: {player['stats']['primary_role']}")
                 print(f"      🎮 Champions: {', '.join(player['stats']['most_played_champions'][:3])}")
@@ -79,7 +79,7 @@ def test_improved_search(query: str, limit: int = 5):
                 if player.get('embedding_preview'):
                     print(f"      🔍 Embedded: {player['embedding_preview'][:150]}...")
             
-            return data['players']
+            return data['results']
         else:
             print(f"❌ Search failed: {response.status_code} - {response.text}")
             return []
@@ -94,7 +94,10 @@ def test_specific_player(riot_id: str):
         print(f"\n👤 PLAYER DETAILS: {riot_id}")
         print("=" * 50)
         
-        response = requests.get(f"{BASE_URL}/player/{riot_id}")
+        # URL encode the riot_id
+        import urllib.parse
+        encoded_riot_id = urllib.parse.quote(riot_id, safe='')
+        response = requests.get(f"{BASE_URL}/player/{encoded_riot_id}")
         
         if response.status_code == 200:
             data = response.json()
