@@ -7,7 +7,6 @@ import { Separator } from './ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Badge } from './ui/badge';
 import { 
-  Crown, 
   Mail, 
   Lock, 
   User, 
@@ -46,7 +45,7 @@ const LoginView = ({ onLogin }: LoginViewProps) => {
     setTimeout(() => {
       setIsLoading(false);
       toast({
-        title: "Welcome to LeagueHub!",
+        title: "Welcome to EZLFP!",
         description: "Successfully logged in. Let's find your perfect duo partner!",
       });
       onLogin();
@@ -71,7 +70,7 @@ const LoginView = ({ onLogin }: LoginViewProps) => {
       setIsLoading(false);
       toast({
         title: "Account Created!",
-        description: "Welcome to LeagueHub! You're now ready to find your perfect duo partner.",
+        description: "Welcome to EZLFP! You're now ready to find your perfect duo partner.",
       });
       onLogin();
     }, 1500);
@@ -99,10 +98,11 @@ const LoginView = ({ onLogin }: LoginViewProps) => {
         <div className="space-y-8 text-center lg:text-left">
           <div className="space-y-4">
             <div className="flex items-center justify-center lg:justify-start">
-              <Crown className="mr-4 h-16 w-16 text-lol-gold animate-glow" />
-              <h1 className="text-6xl font-bold text-lol-white">
-                League<span className="text-lol-gold">Hub</span>
-              </h1>
+              <img 
+                src="/ezlfp-logo.png" 
+                alt="EZLFP" 
+                className="h-36 w-auto"
+              />
             </div>
             <p className="text-xl text-lol-white/70 max-w-md mx-auto lg:mx-0">
               Find your perfect duo partner and climb the ranked ladder together in League of Legends
@@ -153,7 +153,14 @@ const LoginView = ({ onLogin }: LoginViewProps) => {
         <div className="w-full max-w-md mx-auto">
           <Card className="bg-lol-gray-800/50 border-lol-gray-700 shadow-2xl">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl text-lol-white">Join LeagueHub</CardTitle>
+                              <div className="flex items-center justify-center gap-3">
+                  <span className="text-2xl text-lol-white font-semibold">Join</span>
+                  <img 
+                    src="/ezlfp-logo.png" 
+                    alt="EZLFP" 
+                    className="h-8 w-auto"
+                  />
+                </div>
               <CardDescription className="text-lol-white/60">
                 Sign in to your account or create a new one
               </CardDescription>

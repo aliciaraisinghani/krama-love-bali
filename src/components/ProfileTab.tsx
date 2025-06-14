@@ -4,7 +4,7 @@ import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
-import { Crown, Shield, Star, TrendingUp, RefreshCw, Clock, MapPin, MessageCircle, Globe, Sword, TreePine, Zap, Target, Users, Settings } from 'lucide-react';
+import { Shield, Star, TrendingUp, RefreshCw, Clock, MapPin, MessageCircle, Globe, Sword, TreePine, Zap, Target, Users, Settings } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 import { riotApiService, type PlayerStats, getChampionName, getMostPlayedRole, getMostPlayedRoleFromMatches } from '@/lib/riotApi';
 import { PlayerPreferenceTags } from './PlayerPreferenceTags';
@@ -141,7 +141,11 @@ const ProfileTab = () => {
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardContent className="pt-6">
             <div className="text-center py-8">
-              <Crown className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <img 
+                src="/ezlfp-logo.png" 
+                alt="EZLFP" 
+                className="mx-auto h-20 w-auto mb-4 opacity-50"
+              />
               <h3 className="text-lg font-semibold text-foreground mb-2">No Profile Connected</h3>
               <p className="text-muted-foreground">
                 Connect your League of Legends account to view your profile information.
@@ -198,7 +202,7 @@ const ProfileTab = () => {
         url: 'https://static.wikia.nocookie.net/leagueoflegends/images/e/e0/Support_icon.png'
       },
       'Unknown': { 
-        icon: Crown, 
+        icon: Users, 
         color: 'text-gray-400'
       }
     };
@@ -331,7 +335,7 @@ const ProfileTab = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Crown className="h-5 w-5 text-lol-gold" />
+                <Star className="h-5 w-5 text-lol-gold" />
                 <span className="text-base text-muted-foreground">Main Role</span>
               </div>
               <div className="flex items-center gap-2">

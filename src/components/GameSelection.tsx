@@ -3,13 +3,13 @@ import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { 
-  Crown, 
   Target, 
   Sword, 
   Shield, 
   Zap,
   ArrowRight,
-  Clock
+  Clock,
+  Star
 } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 
@@ -25,7 +25,7 @@ const GameSelection = ({ onGameSelect }: GameSelectionProps) => {
       id: 'lol',
       name: 'League of Legends',
       description: 'The world\'s most popular MOBA',
-      icon: Crown,
+      icon: Star,
       color: 'lol-gold',
       gradient: 'from-lol-gold to-lol-gold-dark',
       available: true,

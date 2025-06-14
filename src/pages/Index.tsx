@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { User, Search, Crown, Users } from 'lucide-react';
+import { User, Users, Heart } from 'lucide-react';
 import ProfileTab from '../components/ProfileTab';
-import FindPlayersTab from '../components/FindPlayersTab';
 import MatchesTab from '../components/MatchesTab';
+import Matchmaking from './Matchmaking';
 import LoginView from '../components/LoginView';
 import GameSelection from '../components/GameSelection';
 import AccountConnection from '../components/AccountConnection';
@@ -31,8 +31,8 @@ const Index = () => {
     switch (activeTab) {
       case 'profile':
         return <ProfileTab />;
-      case 'find':
-        return <FindPlayersTab />;
+      case 'matchmaking':
+        return <Matchmaking />;
       case 'matches':
         return <MatchesTab />;
       default:
@@ -62,10 +62,11 @@ const Index = () => {
       <header className="bg-lol-gray-900 border-b border-lol-blue/30 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-center">
-            <Crown className="mr-3 h-8 w-8 text-lol-gold" />
-            <h1 className="text-3xl font-bold text-lol-white">
-              League<span className="text-lol-gold">Hub</span>
-            </h1>
+            <img 
+              src="/ezlfp-logo.png" 
+              alt="EZLFP" 
+              className="h-16 w-auto"
+            />
           </div>
           <p className="text-center text-sm text-lol-white/60 mt-1">
             Find your perfect League of Legends duo partner
@@ -79,7 +80,7 @@ const Index = () => {
           <div className="flex justify-center space-x-8">
             {[
               { id: 'profile', icon: User, label: 'My Profile' },
-              { id: 'find', icon: Search, label: 'Find Players' },
+              { id: 'matchmaking', icon: Heart, label: 'Matchmaking' },
               { id: 'matches', icon: Users, label: 'Matches' },
             ].map(({ id, icon: Icon, label }) => (
               <button
@@ -111,7 +112,15 @@ const Index = () => {
       <footer className="bg-lol-gray-900 border-t border-lol-gray-700 mt-16">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="text-center text-lol-white/40 text-sm">
-            <p>© 2024 LeagueHub - Find Your Duo. Rise in Ranked.</p>
+            <div className="flex items-center justify-center gap-2">
+              <span>© 2024</span>
+              <img 
+                src="/ezlfp-logo.png" 
+                alt="EZLFP" 
+                className="h-6 w-auto"
+              />
+              <span>- Find Your Duo. Rise in Ranked.</span>
+            </div>
             <p className="mt-1">Not affiliated with Riot Games. League of Legends is a trademark of Riot Games, Inc.</p>
           </div>
         </div>
