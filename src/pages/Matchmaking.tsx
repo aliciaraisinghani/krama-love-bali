@@ -26,7 +26,10 @@ import {
   Send,
   Clock,
   AlertCircle,
-  RotateCcw
+  RotateCcw,
+  ThumbsDown,
+  Gamepad2,
+  UserCheck
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -41,8 +44,6 @@ interface MatchmakingFormData {
   playerType: string;
   champions: string;
   preference: string;
-  playstyle: string;
-  strengths: string;
   dealbreakers: string;
 }
 
@@ -119,6 +120,22 @@ interface ChatMessage {
   timestamp: Date;
 }
 
+interface PlayerReview {
+  id: string;
+  reviewerName: string;
+  date: string;
+  ratings: {
+    fun: number;
+    helpful: number;
+    leader: number;
+    toxic: number;
+    troll: number;
+    chill: number;
+  };
+  comment?: string;
+  gamesPlayed: number;
+}
+
 // API service for matchmaking
 const matchmakingApi = {
   async searchPlayers(query: string): Promise<SearchResponse> {
@@ -152,12 +169,15 @@ const Matchmaking: React.FC = () => {
   const [currentMatch, setCurrentMatch] = useState<SearchResult | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [userAccepted, setUserAccepted] = useState(false);
+  const [matchAccepted, setMatchAccepted] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [userRejectedMatch, setUserRejectedMatch] = useState(false);
+  const [readyToPlay, setReadyToPlay] = useState(false);
   const [formData, setFormData] = useState<MatchmakingFormData>({
     playerType: '',
     champions: '',
     preference: '',
-    playstyle: '',
-    strengths: '',
     dealbreakers: ''
   });
 
@@ -208,13 +228,7 @@ const Matchmaking: React.FC = () => {
       parts.push(formData.preference);
     }
 
-    if (formData.playstyle) {
-      parts.push(`with strengths in ${formData.playstyle}`);
-    }
 
-    if (formData.strengths) {
-      parts.push(`My strengths are ${formData.strengths}`);
-    }
     
     if (formData.dealbreakers) {
       parts.push(`but not ${formData.dealbreakers}`);
@@ -270,12 +284,15 @@ const Matchmaking: React.FC = () => {
     setTimerActive(false);
     setTimeLeft(30);
     setChatMessages([]);
+    setUserAccepted(false);
+    setMatchAccepted(false);
+    setShowChat(false);
+    setUserRejectedMatch(false);
+    setReadyToPlay(false);
     setFormData({
       playerType: '',
       champions: '',
       preference: '',
-      playstyle: '',
-      strengths: '',
       dealbreakers: ''
     });
   };
@@ -310,21 +327,32 @@ const Matchmaking: React.FC = () => {
   };
 
   const handleAcceptMatch = () => {
-    setTimerActive(false);
-    setCurrentStep('chat');
-    setChatMessages([
-      {
-        id: '1',
-        sender: 'match',
-        message: `Hey! I saw we matched up. Ready to climb some ranks together? 🎮`,
-        timestamp: new Date()
-      }
-    ]);
+    setUserAccepted(true);
     
     toast({
       title: "Match Accepted!",
-      description: "You can now chat with your potential duo partner",
+      description: "Waiting for your match to respond...",
     });
+
+    // Simulate the other user accepting after 2 seconds
+    setTimeout(() => {
+      setMatchAccepted(true);
+      setTimerActive(false);
+      setShowChat(true);
+      setChatMessages([
+        {
+          id: '1',
+          sender: 'match',
+          message: `Hey! I saw we matched up. Ready to climb some ranks together? 🎮`,
+          timestamp: new Date()
+        }
+      ]);
+      
+      toast({
+        title: "It's a Match! 🎉",
+        description: "Both players accepted. You can now chat!",
+      });
+    }, 2000);
   };
 
   const handleSendMessage = () => {
@@ -359,6 +387,105 @@ const Matchmaking: React.FC = () => {
         setChatMessages(prev => [...prev, response]);
       }, 1000 + Math.random() * 2000);
     }
+  };
+
+  const handleCloseChat = () => {
+    setShowChat(false);
+    setChatMessages([]);
+    setUserAccepted(false);
+    setMatchAccepted(false);
+  };
+
+  const handleRejectMatch = () => {
+    setUserRejectedMatch(true);
+    setShowChat(false);
+    setUserAccepted(false);
+    setMatchAccepted(false);
+    
+    toast({
+      title: "Match Rejected",
+      description: "Looking for your next potential duo partner...",
+    });
+
+    // Find a new match after a short delay
+    setTimeout(() => {
+      handleFindNewMatch();
+    }, 1500);
+  };
+
+  const handleReadyToPlay = () => {
+    setReadyToPlay(true);
+    
+    toast({
+      title: "Discord Shared! 🎮",
+      description: "Your Discord info has been exchanged. Time to duo queue!",
+    });
+  };
+
+  // Generate mock review data for a player
+  const generatePlayerReviews = (riotId: string): PlayerReview[] => {
+    const reviewers = [
+      'ShadowStrike92', 'MysticSupport', 'JungleKingXX', 'WardMaster', 
+      'CriticalHit99', 'SpellThief', 'FlashBangGG', 'TankCommander'
+    ];
+    
+    const numReviews = Math.floor(Math.random() * 6) + 3; // 3-8 reviews
+    const reviews: PlayerReview[] = [];
+    
+    for (let i = 0; i < numReviews; i++) {
+      const reviewer = reviewers[Math.floor(Math.random() * reviewers.length)];
+      const date = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000); // Last 30 days
+      
+      reviews.push({
+        id: `${i + 1}`,
+        reviewerName: reviewer,
+        date: date.toISOString().split('T')[0],
+        ratings: {
+          fun: Math.floor(Math.random() * 3) + 3, // 3-5
+          helpful: Math.floor(Math.random() * 3) + 3, // 3-5
+          leader: Math.floor(Math.random() * 5) + 1, // 1-5
+          toxic: Math.floor(Math.random() * 2) + 1, // 1-2 (low toxicity)
+          troll: Math.floor(Math.random() * 2) + 1, // 1-2 (low troll)
+          chill: Math.floor(Math.random() * 3) + 3, // 3-5
+        },
+        comment: [
+          'Great teammate! Always positive and helps the team.',
+          'Solid player with good game sense.',
+          'Fun to play with, good communication.',
+          'Reliable duo partner, never flames.',
+          'Good mechanical skills and team player.',
+          'Always tries their best and stays positive.'
+        ][Math.floor(Math.random() * 6)],
+        gamesPlayed: Math.floor(Math.random() * 100) + 20
+      });
+    }
+    
+    return reviews;
+  };
+
+  const calculateAverageRatings = (reviews: PlayerReview[]) => {
+    if (reviews.length === 0) return { fun: 0, helpful: 0, leader: 0, toxic: 0, troll: 0, chill: 0 };
+    
+    const totals = reviews.reduce(
+      (acc, review) => ({
+        fun: acc.fun + review.ratings.fun,
+        helpful: acc.helpful + review.ratings.helpful,
+        leader: acc.leader + review.ratings.leader,
+        toxic: acc.toxic + review.ratings.toxic,
+        troll: acc.troll + review.ratings.troll,
+        chill: acc.chill + review.ratings.chill,
+      }),
+      { fun: 0, helpful: 0, leader: 0, toxic: 0, troll: 0, chill: 0 }
+    );
+
+    return {
+      fun: totals.fun / reviews.length,
+      helpful: totals.helpful / reviews.length,
+      leader: totals.leader / reviews.length,
+      toxic: totals.toxic / reviews.length,
+      troll: totals.troll / reviews.length,
+      chill: totals.chill / reviews.length,
+    };
   };
 
   const getOpGgUrl = (riotId: string): string => {
@@ -434,24 +561,29 @@ const Matchmaking: React.FC = () => {
   // Timeout Screen
   if (currentStep === 'timeout') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-900 via-red-800 to-red-700 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-800 to-indigo-700 flex items-center justify-center p-4">
         <div className="text-center max-w-md">
           <div className="mb-8">
-            <AlertCircle className="w-24 h-24 text-red-300 mx-auto mb-4" />
-            <h1 className="text-4xl font-bold text-white mb-4">Time's Up!</h1>
-            <p className="text-red-200 text-lg">
-              You didn't respond in time. Don't worry, let's find you another match!
+            <Clock className="w-20 h-20 text-blue-300 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-white mb-4">Time to Move On!</h1>
+            <p className="text-blue-200 text-lg">
+              No worries! Let's find you another great match. There are plenty of amazing teammates waiting.
             </p>
           </div>
           
-          <Button 
-            onClick={handleNewSearch}
-            size="lg"
-            className="bg-white text-red-800 hover:bg-red-50 font-bold px-8 py-3"
-          >
-            <RotateCcw className="w-5 h-5 mr-2" />
-            Start New Search
-          </Button>
+          <div className="space-y-3">
+            <Button 
+              onClick={handleNewSearch}
+              size="lg"
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold px-8 py-3 w-full"
+            >
+              <Search className="w-5 h-5 mr-2" />
+              Find Another Match
+            </Button>
+            <p className="text-blue-300/60 text-sm">
+              ✨ New matches are found every few seconds!
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -600,21 +732,41 @@ const Matchmaking: React.FC = () => {
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-teal-800 flex items-center justify-center p-4">
-        <div className="w-full max-w-6xl">
-          {/* Timer */}
-          <div className="text-center mb-6">
-            <Card className="bg-black/20 border-white/20 backdrop-blur-sm max-w-xs mx-auto">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-center gap-2">
-                  <Clock className={`w-5 h-5 ${timeLeft <= 10 ? 'text-red-400' : 'text-white'}`} />
-                  <span className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-red-400' : 'text-white'}`}>
-                    0:{timeLeft.toString().padStart(2, '0')}
-                  </span>
-                </div>
-                <p className="text-white/60 text-sm mt-1">Time to decide</p>
-              </CardContent>
-            </Card>
-          </div>
+        <div className="w-full max-w-7xl flex gap-6">
+          <div className="flex-1">
+            {/* Timer - only show if both haven't accepted */}
+            {!matchAccepted && (
+              <div className="text-center mb-6">
+                <Card className="bg-black/20 border-white/20 backdrop-blur-sm max-w-xs mx-auto">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <Clock className={`w-5 h-5 ${timeLeft <= 10 ? 'text-red-400' : 'text-white'}`} />
+                      <span className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-red-400' : 'text-white'}`}>
+                        0:{timeLeft.toString().padStart(2, '0')}
+                      </span>
+                    </div>
+                    <p className="text-white/60 text-sm mt-1">
+                      {userAccepted ? 'Waiting for match...' : 'Time to decide'}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Match Status */}
+            {matchAccepted && (
+              <div className="text-center mb-6">
+                <Card className="bg-green-500/20 border-green-400/30 backdrop-blur-sm max-w-xs mx-auto">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <Check className="w-6 h-6 text-green-400" />
+                      <span className="text-xl font-bold text-green-400">It's a Match!</span>
+                    </div>
+                    <p className="text-green-300/80 text-sm mt-1">Both players accepted</p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
           {/* VS Layout */}
           <div className="flex items-center justify-center gap-8 mb-8">
@@ -709,6 +861,12 @@ const Matchmaking: React.FC = () => {
                     {currentMatch.riot_id.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
+                {/* Green check when match accepts */}
+                {matchAccepted && (
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-2 border-white flex items-center justify-center animate-pulse">
+                    <Check className="w-5 h-5 text-white" />
+                  </div>
+                )}
                 <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
                   <Badge className="bg-pink-600 text-white px-3 py-1">
                     <Star className="w-4 h-4 mr-1" />
@@ -746,9 +904,9 @@ const Matchmaking: React.FC = () => {
 
           {/* Player Details */}
           <div className="mb-8">
-            <Card className="bg-black/20 border-white/20 backdrop-blur-sm max-w-4xl mx-auto">
+            <Card className="bg-black/20 border-white/20 backdrop-blur-sm max-w-6xl mx-auto">
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Left Column - Bio & Playstyle */}
                   <div>
                     <h3 className="text-white font-semibold text-lg mb-3">About This Player</h3>
@@ -765,9 +923,15 @@ const Matchmaking: React.FC = () => {
                         ))}
                       </div>
                     </div>
+
+                    <div>
+                      <h4 className="text-white font-medium mb-2">Strengths & Weaknesses:</h4>
+                      <p className="text-green-400 text-sm mb-1">✓ {currentMatch.descriptions.compatibility}</p>
+                      <p className="text-orange-400 text-sm">⚠ {currentMatch.descriptions.cons}</p>
+                    </div>
                   </div>
 
-                  {/* Right Column - Stats & Analysis */}
+                  {/* Middle Column - Performance Stats */}
                   <div>
                     <h3 className="text-white font-semibold text-lg mb-3">Performance Stats</h3>
                     <div className="space-y-3">
@@ -787,42 +951,267 @@ const Matchmaking: React.FC = () => {
                         <span className="text-white/70">Avg CS/min:</span>
                         <span className="text-white">{currentMatch.stats.avg_cs_per_minute.toFixed(1)}</span>
                       </div>
+                      <div className="flex justify-between">
+                        <span className="text-white/70">Skill Level:</span>
+                        <span className="text-blue-400">{currentMatch.analysis.mechanical_skill_level}/10</span>
+                      </div>
                     </div>
 
                     <div className="mt-4">
                       <h4 className="text-white font-medium mb-2">Recent Adaptations:</h4>
                       <div className="space-y-1">
-                        {currentMatch.analysis.recent_champion_shifts.map((shift, index) => (
+                        {currentMatch.analysis.recent_champion_shifts.slice(0, 3).map((shift, index) => (
                           <div key={index} className="text-sm text-blue-300">• {shift}</div>
                         ))}
                       </div>
                     </div>
+                  </div>
+
+                  {/* Right Column - Community Reviews */}
+                  <div>
+                    <h3 className="text-white font-semibold text-lg mb-3 flex items-center gap-2">
+                      <Star className="w-5 h-5 text-yellow-400" />
+                      Community Reviews
+                    </h3>
+                    
+                    {(() => {
+                      const reviews = generatePlayerReviews(currentMatch.riot_id);
+                      const avgRatings = calculateAverageRatings(reviews);
+                      
+                      return (
+                        <div className="space-y-4">
+                          {/* Quick Rating Overview */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-white/10 rounded-lg p-3 text-center">
+                              <div className="text-green-400 font-bold text-lg">{avgRatings.fun.toFixed(1)}</div>
+                              <div className="text-white/60 text-xs">Fun to Play</div>
+                            </div>
+                            <div className="bg-white/10 rounded-lg p-3 text-center">
+                              <div className="text-blue-400 font-bold text-lg">{avgRatings.helpful.toFixed(1)}</div>
+                              <div className="text-white/60 text-xs">Helpful</div>
+                            </div>
+                            <div className="bg-white/10 rounded-lg p-3 text-center">
+                              <div className="text-purple-400 font-bold text-lg">{avgRatings.leader.toFixed(1)}</div>
+                              <div className="text-white/60 text-xs">Leadership</div>
+                            </div>
+                            <div className="bg-white/10 rounded-lg p-3 text-center">
+                              <div className="text-green-400 font-bold text-lg">{avgRatings.chill.toFixed(1)}</div>
+                              <div className="text-white/60 text-xs">Chill</div>
+                            </div>
+                          </div>
+
+                          {/* Recent Reviews */}
+                          <div>
+                            <h4 className="text-white/80 font-medium text-sm mb-2">Recent Feedback:</h4>
+                            <div className="space-y-2">
+                              {reviews.slice(0, 2).map((review) => (
+                                <div key={review.id} className="bg-white/5 rounded-lg p-3">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="text-white/80 text-xs font-medium">{review.reviewerName}</span>
+                                    <span className="text-white/50 text-xs">
+                                      {new Date(review.date).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  <p className="text-white/70 text-xs">"{review.comment}"</p>
+                                  <div className="flex items-center gap-2 mt-2">
+                                    <Badge variant="outline" className="text-xs border-white/30 text-white/60">
+                                      {review.gamesPlayed} games
+                                    </Badge>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="text-center mt-3">
+                              <span className="text-white/50 text-xs">
+                                Based on {reviews.length} recent reviews
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-center gap-4">
-            <Button 
-              onClick={handleFindNewMatch}
-              disabled={isLoadingNextMatch}
-              variant="outline"
-              className="border-red-400/50 text-red-400 hover:bg-red-400/10 px-8 py-3"
-            >
-              <X className="w-4 h-4 mr-2" />
-              Pass
-            </Button>
-            <Button 
-              onClick={handleAcceptMatch}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 px-8 py-3"
-            >
-              <Check className="w-4 h-4 mr-2" />
-              Accept Match
-            </Button>
+            {/* Action Buttons */}
+            {!matchAccepted && (
+              <div className="flex justify-center gap-4">
+                <Button 
+                  onClick={handleFindNewMatch}
+                  disabled={isLoadingNextMatch || userAccepted}
+                  variant="outline"
+                  className="border-red-400/50 text-red-400 hover:bg-red-400/10 px-8 py-3"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Pass
+                </Button>
+                <Button 
+                  onClick={handleAcceptMatch}
+                  disabled={userAccepted}
+                  className={`px-8 py-3 ${
+                    userAccepted 
+                      ? 'bg-gray-500 text-gray-300 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
+                  }`}
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  {userAccepted ? 'Waiting for Match...' : 'Accept Match'}
+                </Button>
+              </div>
+            )}
+
+            {/* Post-Match Actions */}
+            {matchAccepted && (
+              <div className="flex justify-center gap-4">
+                {!readyToPlay && (
+                  <>
+                    <Button 
+                      onClick={handleRejectMatch}
+                      variant="outline"
+                      className="border-red-400/50 text-red-400 hover:bg-red-400/10 px-6 py-3"
+                    >
+                      <ThumbsDown className="w-4 h-4 mr-2" />
+                      Not a Good Fit
+                    </Button>
+                    
+                    {!showChat && (
+                      <Button 
+                        onClick={() => setShowChat(true)}
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 px-6 py-3"
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Start Chatting
+                      </Button>
+                    )}
+                    
+                    <Button 
+                      onClick={handleReadyToPlay}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 px-6 py-3"
+                    >
+                      <Gamepad2 className="w-4 h-4 mr-2" />
+                      Ready to Play!
+                    </Button>
+                  </>
+                )}
+                
+                {readyToPlay && (
+                  <div className="text-center">
+                    <div className="bg-green-500/20 border border-green-400/30 rounded-lg p-4 mb-4">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <UserCheck className="w-6 h-6 text-green-400" />
+                        <span className="text-green-400 font-semibold">Ready to Queue!</span>
+                      </div>
+                      <p className="text-green-300/80 text-sm mb-3">
+                        Discord info exchanged! Time to dominate the Rift together.
+                      </p>
+                      <div className="flex justify-center gap-3">
+                        <Button 
+                          onClick={() => window.open(getDiscordUrl(), '_blank')}
+                          size="sm"
+                          className="bg-purple-500 hover:bg-purple-600"
+                        >
+                          Open Discord
+                        </Button>
+                        <Button 
+                          onClick={handleNewSearch}
+                          size="sm"
+                          variant="outline"
+                          className="border-white/30 text-white hover:bg-white/10"
+                        >
+                          Find Another
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
+          {/* Chat Panel */}
+          {showChat && (
+            <div className="w-96 bg-black/20 border-white/20 backdrop-blur-sm rounded-lg">
+              <div className="p-4 border-b border-white/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="w-10 h-10">
+                      <img 
+                        src={getPlayerIconUrl(currentMatch.riot_id)}
+                        alt="Matched Player"
+                        onError={(e) => {
+                          e.currentTarget.src = "https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/1.png";
+                        }}
+                      />
+                      <AvatarFallback>
+                        {currentMatch.riot_id.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="text-white font-semibold text-sm">
+                        {currentMatch.riot_id.split('#')[0]}
+                      </h3>
+                      <p className="text-white/60 text-xs">{currentMatch.stats.primary_role} Main</p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleCloseChat}
+                    variant="ghost"
+                    size="sm"
+                    className="text-white/60 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Chat Messages */}
+              <div className="h-80 overflow-y-auto p-4 space-y-3">
+                {chatMessages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                        msg.sender === 'user'
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-white/20 text-white border border-white/30'
+                      }`}
+                    >
+                      <p>{msg.message}</p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Message Input */}
+              <div className="p-4 border-t border-white/20">
+                <div className="flex gap-2">
+                  <Input
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    placeholder="Type your message..."
+                    className="flex-1 bg-white/10 border-white/30 text-white placeholder:text-white/50 text-sm"
+                  />
+                  <Button 
+                    onClick={handleSendMessage}
+                    disabled={!newMessage.trim()}
+                    size="sm"
+                    className="bg-blue-500 hover:bg-blue-600"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -889,34 +1278,6 @@ const Matchmaking: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                <div>
-                  <div className="flex flex-wrap items-center gap-2 text-2xl font-medium text-lol-white leading-relaxed">
-                    <span>with strengths in</span>
-                    <div className="min-w-[220px]">
-                      <Input
-                        placeholder="preferred playstyle"
-                        value={formData.playstyle}
-                        onChange={(e) => setFormData(prev => ({ ...prev, playstyle: e.target.value }))}
-                        className="h-10 text-lg border-2 border-green-400/30 bg-lol-gray-900 text-green-400 font-medium placeholder:text-green-400/50 focus:border-green-400 rounded-full px-4"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex flex-wrap items-center gap-2 text-2xl font-medium text-lol-white leading-relaxed">
-                    <span>My strengths are</span>
-                    <div className="min-w-[280px]">
-                      <Input
-                        placeholder="what people love about you"
-                        value={formData.strengths}
-                        onChange={(e) => setFormData(prev => ({ ...prev, strengths: e.target.value }))}
-                        className="h-10 text-lg border-2 border-yellow-400/30 bg-lol-gray-900 text-yellow-400 font-medium placeholder:text-yellow-400/50 focus:border-yellow-400 rounded-full px-4"
-                      />
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -951,7 +1312,7 @@ const Matchmaking: React.FC = () => {
             <div className="mt-12 text-center">
               <Button 
                 onClick={handleSubmit}
-                disabled={!formData.playerType || !formData.preference || !formData.playstyle || !formData.strengths || isSearching}
+                disabled={!formData.playerType || !formData.preference || isSearching}
                 size="lg"
                 className="px-12 py-4 text-lg bg-gradient-to-r from-lol-gold to-lol-gold-dark hover:from-lol-gold-dark hover:to-lol-gold text-lol-black font-bold disabled:opacity-50"
               >
