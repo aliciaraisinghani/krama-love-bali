@@ -4,9 +4,9 @@ import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from './ui/button';
-import { Crown, Shield, Star, TrendingUp, RefreshCw, Clock, MapPin, MessageCircle, Globe } from 'lucide-react';
+import { Crown, Shield, Star, TrendingUp, RefreshCw, Clock, MapPin, MessageCircle, Globe, Sword, TreePine, Zap, Target, Users } from 'lucide-react';
 import { useToast } from './ui/use-toast';
-import { riotApiService, type PlayerStats, getChampionName, getMostPlayedRole } from '@/lib/riotApi';
+import { riotApiService, type PlayerStats, getChampionName, getMostPlayedRole, getMostPlayedRoleFromMatches } from '@/lib/riotApi';
 
 const ProfileTab = () => {
   const { toast } = useToast();
@@ -18,7 +18,31 @@ const ProfileTab = () => {
     const savedStats = localStorage.getItem('playerStats');
     if (savedStats) {
       try {
-        setPlayerStats(JSON.parse(savedStats));
+        const stats = JSON.parse(savedStats);
+        setPlayerStats(stats);
+        
+        // Debug: Log what data we have
+        console.log('Loaded player stats from localStorage:', {
+          hasAccount: !!stats.account,
+          hasSummoner: !!stats.summoner,
+          rankedStatsCount: stats.rankedStats?.length || 0,
+          topChampionsCount: stats.topChampions?.length || 0,
+          hasRecentMatches: !!stats.recentMatches,
+          recentMatchesCount: stats.recentMatches?.length || 0
+        });
+        
+        if (stats.rankedStats?.length > 0) {
+          console.log('Available ranked stats:', stats.rankedStats);
+        } else {
+          console.log('No ranked stats available - player may be unranked or not played ranked this season');
+        }
+        
+        if (stats.topChampions?.length > 0) {
+          console.log('Available champion data:', stats.topChampions);
+        } else {
+          console.log('No champion mastery data available');
+        }
+        
       } catch (error) {
         console.error('Error parsing saved player stats:', error);
       }
@@ -79,7 +103,57 @@ const ProfileTab = () => {
   }
 
   const primaryRank = playerStats.rankedStats.find(rank => rank.queueType === 'RANKED_SOLO_5x5');
-  const mostPlayedRole = getMostPlayedRole(playerStats.topChampions);
+  
+  // Try to get role from match history first, fallback to champion mastery
+  let mostPlayedRole = 'Unknown';
+  if (playerStats.recentMatches && playerStats.recentMatches.length > 0) {
+    mostPlayedRole = getMostPlayedRoleFromMatches(playerStats.recentMatches, playerStats.account.puuid);
+  } else if (playerStats.topChampions && playerStats.topChampions.length > 0) {
+    mostPlayedRole = getMostPlayedRole(playerStats.topChampions);
+  }
+  
+  console.log('Role determination:', {
+    hasMatches: !!playerStats.recentMatches?.length,
+    hasChampions: !!playerStats.topChampions?.length,
+    finalRole: mostPlayedRole
+  });
+
+  // Role icon mapping - using a combination of available sources and fallback icons
+  const getRoleIcon = (role: string) => {
+    const roleIcons: Record<string, { icon: any; color: string; url?: string }> = {
+      'Top': { 
+        icon: Sword, 
+        color: 'text-red-400',
+        url: 'https://static.wikia.nocookie.net/leagueoflegends/images/f/fb/Top_icon.png'
+      },
+      'Jungle': { 
+        icon: TreePine, 
+        color: 'text-green-400',
+        url: 'https://static.wikia.nocookie.net/leagueoflegends/images/1/1b/Jungle_icon.png'
+      },
+      'Mid': { 
+        icon: Zap, 
+        color: 'text-blue-400',
+        url: 'https://static.wikia.nocookie.net/leagueoflegends/images/2/2f/Middle_icon.png'
+      },
+      'ADC': { 
+        icon: Target, 
+        color: 'text-orange-400',
+        url: 'https://static.wikia.nocookie.net/leagueoflegends/images/4/40/Bottom_icon.png'
+      },
+      'Support': { 
+        icon: Users, 
+        color: 'text-cyan-400',
+        url: 'https://static.wikia.nocookie.net/leagueoflegends/images/e/e0/Support_icon.png'
+      },
+      'Unknown': { 
+        icon: Crown, 
+        color: 'text-gray-400'
+      }
+    };
+    
+    return roleIcons[role] || roleIcons['Unknown'];
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -87,42 +161,53 @@ const ProfileTab = () => {
       <div className="lg:col-span-1 space-y-4">
         {/* Header with Refresh Button */}
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-foreground">Profile</h2>
+          <h2 className="text-2xl font-bold text-foreground">Profile</h2>
           <Button 
             onClick={handleRefreshStats}
             disabled={isLoadingStats}
             variant="outline"
-            size="sm"
+            size="default"
             className="border-border/50"
           >
-            <RefreshCw className={`h-3 w-3 ${isLoadingStats ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingStats ? 'animate-spin' : ''}`} />
+            Refresh
           </Button>
         </div>
 
         {/* Player Identity */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <Avatar className="h-12 w-12">
-                <AvatarFallback className="bg-lol-gold/20 text-lol-gold text-sm font-bold">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <Avatar className="h-20 w-20">
+                <img 
+                  src={`https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/${playerStats.summoner.profileIconId}.png`}
+                  alt="Summoner Icon"
+                  className="w-full h-full rounded-full"
+                  onError={(e) => {
+                    // Fallback to initials if image fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <AvatarFallback className="bg-lol-gold/20 text-lol-gold text-xl font-bold hidden">
                   {playerStats.account.gameName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-foreground text-sm truncate">
+                <h3 className="font-bold text-foreground text-lg truncate">
                   {playerStats.account.gameName}
                 </h3>
-                <p className="text-xs text-muted-foreground">#{playerStats.account.tagLine}</p>
+                <p className="text-sm text-muted-foreground">#{playerStats.account.tagLine}</p>
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="flex items-center gap-1">
-                <Globe className="h-3 w-3 text-muted-foreground" />
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">NA</span>
               </div>
-              <div className="flex items-center gap-1">
-                <Star className="h-3 w-3 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">Lv.{playerStats.summoner.summonerLevel}</span>
               </div>
             </div>
@@ -131,118 +216,129 @@ const ProfileTab = () => {
 
         {/* Rank Information */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Shield className="h-4 w-4 text-blue-400" />
-              <h4 className="font-semibold text-sm text-foreground">Ranked Solo/Duo</h4>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Shield className="h-5 w-5 text-blue-400" />
+              <h4 className="font-semibold text-base text-foreground">Ranked Solo/Duo</h4>
             </div>
             
             {primaryRank ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Badge variant="secondary" className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-xs">
+                  <Badge variant="secondary" className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-sm px-3 py-1">
                     {primaryRank.tier} {primaryRank.rank}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">{primaryRank.leaguePoints} LP</span>
+                  <span className="text-sm text-muted-foreground font-medium">{primaryRank.leaguePoints} LP</span>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <p className="text-muted-foreground">Win Rate</p>
-                    <p className="font-semibold text-foreground">
+                    <p className="font-semibold text-foreground text-lg">
                       {Math.round((primaryRank.wins / (primaryRank.wins + primaryRank.losses)) * 100)}%
                     </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Games</p>
-                    <p className="font-semibold text-foreground">
+                    <p className="font-semibold text-foreground text-lg">
                       {primaryRank.wins + primaryRank.losses}
                     </p>
                   </div>
                 </div>
                 
-                <div className="text-xs">
+                <div className="text-sm">
                   <p className="text-muted-foreground">W/L: {primaryRank.wins}/{primaryRank.losses}</p>
                   {primaryRank.hotStreak && (
-                    <Badge variant="outline" className="border-orange-500/30 text-orange-500 text-xs mt-1">
+                    <Badge variant="outline" className="border-orange-500/30 text-orange-500 text-sm mt-2">
                       🔥 Hot Streak
                     </Badge>
                   )}
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground">Unranked</p>
+              <p className="text-sm text-muted-foreground">Unranked</p>
             )}
           </CardContent>
         </Card>
 
         {/* Most Played Role */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardContent className="p-4">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Crown className="h-4 w-4 text-lol-gold" />
-                <span className="text-sm text-muted-foreground">Main Role</span>
+              <div className="flex items-center gap-3">
+                <Crown className="h-5 w-5 text-lol-gold" />
+                <span className="text-base text-muted-foreground">Main Role</span>
               </div>
-              <Badge variant="outline" className="border-lol-gold/30 text-lol-gold text-xs">
-                {mostPlayedRole}
-              </Badge>
+              <div className="flex items-center gap-2">
+                {(() => {
+                  const roleData = getRoleIcon(mostPlayedRole);
+                  const IconComponent = roleData.icon;
+                  return (
+                    <>
+                      {roleData.url ? (
+                        <img
+                          src={roleData.url}
+                          alt={`${mostPlayedRole} role icon`}
+                          className="w-5 h-5"
+                          onError={(e) => {
+                            // Fallback to Lucide icon if image fails
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <IconComponent className={`h-5 w-5 ${roleData.color} ${roleData.url ? 'hidden' : ''}`} />
+                      <Badge variant="outline" className="border-lol-gold/30 text-lol-gold text-sm px-3 py-1">
+                        {mostPlayedRole}
+                      </Badge>
+                    </>
+                  );
+                })()}
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Top Champions Compact */}
+        {/* Favorite Champions */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Star className="h-4 w-4 text-yellow-400" />
-              <h4 className="font-semibold text-sm text-foreground">Top Champions</h4>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Star className="h-5 w-5 text-yellow-400" />
+              <h4 className="font-semibold text-base text-foreground">Favorite Champions</h4>
             </div>
             
             {playerStats.topChampions.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {playerStats.topChampions.slice(0, 5).map((champion, index) => (
-                  <div key={champion.championId} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <span className="w-4 h-4 rounded-full bg-gradient-to-r from-lol-gold to-lol-gold-dark flex items-center justify-center text-background text-xs font-bold">
+                  <div key={champion.championId} className="flex items-center justify-between text-sm py-1">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <span className="w-6 h-6 rounded-full bg-gradient-to-r from-lol-gold to-lol-gold-dark flex items-center justify-center text-background text-sm font-bold">
                         {index + 1}
                       </span>
-                      <span className="font-medium text-foreground truncate">
-                        {getChampionName(champion.championId)}
-                      </span>
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <img
+                          src={`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/${champion.championId}.png`}
+                          alt={getChampionName(champion.championId)}
+                          className="w-8 h-8 rounded-full border border-border/50"
+                          onError={(e) => {
+                            // Fallback to a default icon or hide if champion icon fails to load
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                        <span className="font-medium text-foreground truncate text-base">
+                          {getChampionName(champion.championId)}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-1 text-yellow-400">
-                      <Star className="h-2 w-2 fill-current" />
-                      <span className="text-xs">M{champion.championLevel}</span>
+                      <Star className="h-3 w-3 fill-current" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground">No mastery data</p>
+              <p className="text-sm text-muted-foreground">No champion data available</p>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Quick Stats */}
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-2 gap-3 text-center">
-              <div>
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <Clock className="h-3 w-3 text-muted-foreground" />
-                </div>
-                <p className="text-lg font-bold text-foreground">{playerStats.summoner.summonerLevel}</p>
-                <p className="text-xs text-muted-foreground">Level</p>
-              </div>
-              <div>
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <Star className="h-3 w-3 text-muted-foreground" />
-                </div>
-                <p className="text-lg font-bold text-foreground">{playerStats.topChampions.length}</p>
-                <p className="text-xs text-muted-foreground">Champions</p>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

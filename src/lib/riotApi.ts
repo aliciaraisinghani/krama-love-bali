@@ -52,11 +52,50 @@ export interface ChampionMastery {
   summonerId: string;
 }
 
+// Add match history interfaces
+export interface MatchInfo {
+  matchId: string;
+  gameCreation: number;
+  gameDuration: number;
+  gameMode: string;
+  gameType: string;
+  queueId: number;
+}
+
+export interface MatchParticipant {
+  puuid: string;
+  championId: number;
+  championName: string;
+  teamPosition: string;
+  individualPosition: string;
+  role: string;
+  lane: string;
+  win: boolean;
+  kills: number;
+  deaths: number;
+  assists: number;
+}
+
+export interface MatchDetails {
+  metadata: {
+    matchId: string;
+    participants: string[];
+  };
+  info: {
+    gameCreation: number;
+    gameDuration: number;
+    gameMode: string;
+    queueId: number;
+    participants: MatchParticipant[];
+  };
+}
+
 export interface PlayerStats {
   account: RiotAccount;
   summoner: SummonerData;
   rankedStats: RankedData[];
   topChampions: ChampionMastery[];
+  recentMatches?: MatchDetails[];
 }
 
 class RiotApiService {
@@ -112,7 +151,23 @@ class RiotApiService {
       if (response.status === 404) {
         throw new Error('Account not found');
       } else if (response.status === 403) {
-        throw new Error(`API key invalid or expired. Status: ${response.status}, Response: ${errorText}`);
+        // Enhanced 403 error handling with more context
+        console.error('403 Forbidden Error Analysis:', {
+          endpoint: url,
+          isChampionMastery: url.includes('champion-mastery'),
+          isRankedStats: url.includes('league/v4/entries'),
+          isSummonerData: url.includes('summoner/v4'),
+          isMatchHistory: url.includes('match/v5'),
+          apiKeyFormat: RIOT_API_KEY.startsWith('RGAPI-'),
+          apiKeyLength: RIOT_API_KEY.length,
+          responseBody: errorText
+        });
+        
+        if (url.includes('champion-mastery')) {
+          throw new Error(`Champion mastery endpoint forbidden. This is common with development API keys. Response: ${errorText}`);
+        } else {
+          throw new Error(`API key invalid or expired. Status: ${response.status}, Response: ${errorText}`);
+        }
       } else if (response.status === 429) {
         throw new Error('Rate limit exceeded. Please try again later.');
       } else {
@@ -143,6 +198,23 @@ class RiotApiService {
     return this.makeRequest<ChampionMastery[]>(url);
   }
 
+  // Alternative method to get champion mastery - sometimes works when the main endpoint doesn't
+  async getChampionMasteryAlternative(summonerId: string): Promise<ChampionMastery[]> {
+    const url = `${REGIONAL_URL}/lol/champion-mastery/v4/champion-masteries/by-summoner/${summonerId}`;
+    const allMasteries = await this.makeRequest<ChampionMastery[]>(url);
+    return allMasteries.sort((a, b) => b.championPoints - a.championPoints).slice(0, 5);
+  }
+
+  async getMatchHistory(puuid: string, count: number = 20): Promise<string[]> {
+    const url = `${BASE_URL}/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=${count}`;
+    return this.makeRequest<string[]>(url);
+  }
+
+  async getMatchDetails(matchId: string): Promise<MatchDetails> {
+    const url = `${BASE_URL}/lol/match/v5/matches/${matchId}`;
+    return this.makeRequest<MatchDetails>(url);
+  }
+
   async getPlayerStats(gameName: string, tagLine: string): Promise<PlayerStats> {
     try {
       // Step 1: Get account by Riot ID
@@ -155,28 +227,176 @@ class RiotApiService {
       const summoner = await this.getSummonerByPuuid(account.puuid);
       console.log('Summoner data:', summoner);
       
-      // Step 3: Get ranked stats first
+      // Step 3: Get ranked stats
       console.log('Step 3: Getting ranked stats...');
-      const rankedStats = await this.getRankedStats(summoner.id);
-      console.log('Ranked stats:', rankedStats);
+      let rankedStats: RankedData[] = [];
+      try {
+        rankedStats = await this.getRankedStats(summoner.id);
+        console.log('Ranked stats found:', rankedStats);
+        console.log('Number of ranked entries:', rankedStats.length);
+        rankedStats.forEach((rank, index) => {
+          console.log(`Rank ${index + 1}:`, {
+            queueType: rank.queueType,
+            tier: rank.tier,
+            rank: rank.rank,
+            lp: rank.leaguePoints,
+            wins: rank.wins,
+            losses: rank.losses
+          });
+        });
+      } catch (rankedError) {
+        console.error('Failed to get ranked stats:', rankedError);
+      }
       
-      // Step 4: Try to get champion mastery separately with better error handling
+      // Step 4: Try to get champion mastery
       console.log('Step 4: Getting champion mastery...');
       let topChampions: ChampionMastery[] = [];
       try {
         topChampions = await this.getChampionMastery(summoner.id, 5);
-        console.log('Champion mastery:', topChampions);
+        console.log('Champion mastery found:', topChampions);
+        console.log('Number of mastery entries:', topChampions.length);
+        topChampions.forEach((champ, index) => {
+          console.log(`Champion ${index + 1}:`, {
+            championId: champ.championId,
+            championName: getChampionName(champ.championId),
+            level: champ.championLevel,
+            points: champ.championPoints
+          });
+        });
       } catch (championError) {
-        console.error('Champion mastery failed, continuing without it:', championError);
-        // Continue without champion mastery data rather than failing completely
+        console.error('Champion mastery failed:', championError);
+        
+        // Try alternative mastery endpoint
+        console.log('Trying alternative champion mastery endpoint...');
+        try {
+          topChampions = await this.getChampionMasteryAlternative(summoner.id);
+          console.log('Alternative champion mastery found:', topChampions);
+        } catch (altError) {
+          console.error('Alternative champion mastery also failed:', altError);
+          console.log('Attempting to get match history for champion data...');
+          
+          // Fallback: Try to get recent matches to determine champions played
+          try {
+            const matchIds = await this.getMatchHistory(account.puuid, 20);
+            console.log('Match IDs found:', matchIds.length);
+            
+            if (matchIds.length > 0) {
+              // Get details for more matches to get better data
+              const matchPromises = matchIds.slice(0, 10).map(matchId => 
+                this.getMatchDetails(matchId).catch(err => {
+                  console.error(`Failed to get match ${matchId}:`, err);
+                  return null;
+                })
+              );
+              
+              const matches = await Promise.all(matchPromises);
+              const validMatches = matches.filter(match => match !== null) as MatchDetails[];
+              console.log('Valid matches found:', validMatches.length);
+              
+              if (validMatches.length > 0) {
+                // Store matches for role analysis
+                const result = {
+                  account,
+                  summoner,
+                  rankedStats,
+                  topChampions: [],
+                  recentMatches: validMatches
+                };
+                
+                // Extract champion data from matches with better analysis
+                const championStats: Record<number, {
+                  count: number;
+                  wins: number;
+                  totalKills: number;
+                  totalDeaths: number;
+                  totalAssists: number;
+                  roles: string[];
+                }> = {};
+                
+                validMatches.forEach(match => {
+                  const playerData = match.info.participants.find(p => p.puuid === account.puuid);
+                  if (playerData) {
+                    const champId = playerData.championId;
+                    if (!championStats[champId]) {
+                      championStats[champId] = {
+                        count: 0,
+                        wins: 0,
+                        totalKills: 0,
+                        totalDeaths: 0,
+                        totalAssists: 0,
+                        roles: []
+                      };
+                    }
+                    
+                    championStats[champId].count++;
+                    if (playerData.win) championStats[champId].wins++;
+                    championStats[champId].totalKills += playerData.kills;
+                    championStats[champId].totalDeaths += playerData.deaths;
+                    championStats[champId].totalAssists += playerData.assists;
+                    
+                    // Track roles played
+                    const role = playerData.teamPosition || playerData.individualPosition;
+                    if (role && !championStats[champId].roles.includes(role)) {
+                      championStats[champId].roles.push(role);
+                    }
+                    
+                    console.log(`Found ${getChampionName(playerData.championId)} in match ${match.metadata.matchId} (${role})`);
+                  }
+                });
+                
+                // Convert to champion mastery-like format with better scoring
+                topChampions = Object.entries(championStats)
+                  .sort(([,a], [,b]) => {
+                    // Sort by games played, then by performance
+                    const scoreA = a.count * 100 + (a.wins / a.count) * 50;
+                    const scoreB = b.count * 100 + (b.wins / b.count) * 50;
+                    return scoreB - scoreA;
+                  })
+                  .slice(0, 5)
+                  .map(([championId, stats]) => ({
+                    championId: parseInt(championId),
+                    championLevel: Math.min(7, Math.floor(stats.count / 2) + 1), // More realistic mastery level
+                    championPoints: stats.count * 1500 + stats.wins * 500, // Better point estimation
+                    lastPlayTime: Date.now(),
+                    championPointsSinceLastLevel: 0,
+                    championPointsUntilNextLevel: 1000,
+                    chestGranted: false,
+                    tokensEarned: 0,
+                    summonerId: summoner.id
+                  }));
+                
+                console.log('Generated enhanced champion data from matches:', topChampions);
+                
+                // Return early with match data included
+                return {
+                  ...result,
+                  topChampions
+                };
+              }
+            }
+          } catch (matchError) {
+            console.error('Match history fallback also failed:', matchError);
+            console.log('All champion data methods failed - proceeding with empty champion list');
+          }
+        }
       }
 
-      return {
+      const result = {
         account,
         summoner,
         rankedStats,
         topChampions
       };
+
+      console.log('Final player stats result:', {
+        hasAccount: !!result.account,
+        hasSummoner: !!result.summoner,
+        rankedStatsCount: result.rankedStats.length,
+        topChampionsCount: result.topChampions.length,
+        summonerLevel: result.summoner.summonerLevel
+      });
+
+      return result;
     } catch (error) {
       console.error('Error fetching player stats:', error);
       throw error;
@@ -565,5 +785,58 @@ export const getMostPlayedRole = (topChampions: ChampionMastery[]): string => {
     }
   });
   
+  return mostPlayedRole;
+};
+
+export const getMostPlayedRoleFromMatches = (matches: MatchDetails[], playerPuuid: string): string => {
+  if (!matches.length) return 'Unknown';
+  
+  const roleCounts: Record<string, number> = {
+    'Top': 0,
+    'Jungle': 0,
+    'Mid': 0,
+    'ADC': 0,
+    'Support': 0
+  };
+  
+  matches.forEach(match => {
+    const playerData = match.info.participants.find(p => p.puuid === playerPuuid);
+    if (playerData) {
+      let role = 'Unknown';
+      
+      // Map Riot's position names to our role names
+      if (playerData.teamPosition === 'TOP') role = 'Top';
+      else if (playerData.teamPosition === 'JUNGLE') role = 'Jungle';
+      else if (playerData.teamPosition === 'MIDDLE') role = 'Mid';
+      else if (playerData.teamPosition === 'BOTTOM') role = 'ADC';
+      else if (playerData.teamPosition === 'UTILITY') role = 'Support';
+      
+      // Fallback to individualPosition if teamPosition is empty
+      if (role === 'Unknown') {
+        if (playerData.individualPosition === 'TOP') role = 'Top';
+        else if (playerData.individualPosition === 'JUNGLE') role = 'Jungle';
+        else if (playerData.individualPosition === 'MIDDLE') role = 'Mid';
+        else if (playerData.individualPosition === 'BOTTOM') role = 'ADC';
+        else if (playerData.individualPosition === 'UTILITY') role = 'Support';
+      }
+      
+      if (roleCounts[role] !== undefined) {
+        roleCounts[role]++;
+      }
+    }
+  });
+  
+  // Find most played role
+  let maxCount = 0;
+  let mostPlayedRole = 'Unknown';
+  
+  Object.entries(roleCounts).forEach(([role, count]) => {
+    if (count > maxCount) {
+      maxCount = count;
+      mostPlayedRole = role;
+    }
+  });
+  
+  console.log('Role analysis from matches:', roleCounts, 'Most played:', mostPlayedRole);
   return mostPlayedRole;
 }; 
