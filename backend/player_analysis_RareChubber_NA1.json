@@ -1,0 +1,176 @@
+{
+  "riot_id": "RareChubber#NA1",
+  "primary_role": "JUNGLE",
+  "secondary_roles": [
+    "BOTTOM",
+    "Unknown",
+    "UTILITY",
+    "TOP"
+  ],
+  "champion_pool_size": 37,
+  "most_played_champions": [
+    {
+      "name": "Rengar",
+      "games_played": 7,
+      "win_rate": 71.42857142857143,
+      "avg_kda": "11.0/4.3/7.3",
+      "avg_cs": 6.806335447161983,
+      "recent_games": 2,
+      "playstyle_tags": [
+        "assassin_burst"
+      ],
+      "difficulty_tier": "Medium",
+      "meta_status": "Meta"
+    },
+    {
+      "name": "Draven",
+      "games_played": 3,
+      "win_rate": 33.33333333333333,
+      "avg_kda": "4.3/10.7/5.0",
+      "avg_cs": 5.564379741736923,
+      "recent_games": 1,
+      "playstyle_tags": [
+        "aggressive_early",
+        "high_skill",
+        "fast_paced"
+      ],
+      "difficulty_tier": "High",
+      "meta_status": "Meta"
+    },
+    {
+      "name": "Corki",
+      "games_played": 2,
+      "win_rate": 0.0,
+      "avg_kda": "13.5/12.0/9.0",
+      "avg_cs": 6.178231307461638,
+      "recent_games": 0,
+      "playstyle_tags": [],
+      "difficulty_tier": "Medium",
+      "meta_status": "Meta"
+    },
+    {
+      "name": "Qiyana",
+      "games_played": 2,
+      "win_rate": 100.0,
+      "avg_kda": "8.0/7.5/10.5",
+      "avg_cs": 6.307455534205521,
+      "recent_games": 0,
+      "playstyle_tags": [
+        "assassin_burst"
+      ],
+      "difficulty_tier": "Medium",
+      "meta_status": "Meta"
+    },
+    {
+      "name": "Yasuo",
+      "games_played": 2,
+      "win_rate": 50.0,
+      "avg_kda": "9.0/6.5/7.5",
+      "avg_cs": 7.092941194230377,
+      "recent_games": 0,
+      "playstyle_tags": [
+        "mobile_skirmisher",
+        "high_skill",
+        "fast_paced"
+      ],
+      "difficulty_tier": "High",
+      "meta_status": "Meta"
+    },
+    {
+      "name": "Kaisa",
+      "games_played": 2,
+      "win_rate": 0.0,
+      "avg_kda": "9.0/14.0/4.0",
+      "avg_cs": 4.955958365130024,
+      "recent_games": 0,
+      "playstyle_tags": [],
+      "difficulty_tier": "Medium",
+      "meta_status": "Meta"
+    },
+    {
+      "name": "Gragas",
+      "games_played": 2,
+      "win_rate": 100.0,
+      "avg_kda": "10.0/2.5/9.0",
+      "avg_cs": 1.1172488506632057,
+      "recent_games": 0,
+      "playstyle_tags": [],
+      "difficulty_tier": "Medium",
+      "meta_status": "Meta"
+    },
+    {
+      "name": "Zed",
+      "games_played": 1,
+      "win_rate": 0.0,
+      "avg_kda": "5.0/7.0/4.0",
+      "avg_cs": 5.160349854227405,
+      "recent_games": 1,
+      "playstyle_tags": [
+        "aggressive_early",
+        "assassin_burst",
+        "high_skill",
+        "meta_a_tier"
+      ],
+      "difficulty_tier": "High",
+      "meta_status": "A-Tier"
+    },
+    {
+      "name": "Riven",
+      "games_played": 1,
+      "win_rate": 0.0,
+      "avg_kda": "0.0/5.0/3.0",
+      "avg_cs": 6.569343065693431,
+      "recent_games": 1,
+      "playstyle_tags": [
+        "aggressive_early",
+        "mobile_skirmisher",
+        "high_skill",
+        "meta_a_tier",
+        "fast_paced"
+      ],
+      "difficulty_tier": "High",
+      "meta_status": "A-Tier"
+    },
+    {
+      "name": "Jax",
+      "games_played": 1,
+      "win_rate": 0.0,
+      "avg_kda": "7.0/8.0/5.0",
+      "avg_cs": 6.781836130306022,
+      "recent_games": 1,
+      "playstyle_tags": [
+        "scaling_late",
+        "meta_a_tier"
+      ],
+      "difficulty_tier": "Medium",
+      "meta_status": "A-Tier"
+    }
+  ],
+  "champion_diversity_score": 0.7708108108108108,
+  "one_trick_tendency": 0.14,
+  "aggressive_tendency": 0.14,
+  "scaling_preference": 0.04,
+  "mechanical_skill_level": 0.16,
+  "meta_adaptation": 0.14,
+  "pace_preference": "Fast-paced",
+  "cs_pattern": "Focuses on other aspects",
+  "average_cs_per_min": 4.888893891931213,
+  "kda_consistency": 0.75,
+  "late_game_performance": 0.7142857142857143,
+  "early_game_performance": 0.5,
+  "recent_champion_shifts": [
+    "Picking up Zed",
+    "Picking up Draven",
+    "Picking up Riven",
+    "Picking up Jax",
+    "Picking up Trundle",
+    "Picking up Chogath",
+    "Picking up Vi",
+    "Picking up LeeSin"
+  ],
+  "performance_trend": "Struggling recently",
+  "meta_following": 0.3,
+  "comprehensive_description": "RareChubber#NA1 is a fast-paced mains Rengar, Draven, Corki. They are an balanced playstyle player, prefers straightforward champions, champion pool versatile player who is focuses on macro and teamfighting over farming, performs better in late game. Recently, they have been working through some recent struggles, picking up zed.",
+  "playstyle_summary": "Playstyle: Fast-paced balanced playstyle player, prefers straightforward champions, champion pool versatile player, plays off-meta picks. Performance: focuses on macro and teamfighting over farming, performs better in late game.",
+  "compatibility_traits": "Compatible with players who enjoy fast-paced games, and focuses on other aspects teammates."
+}

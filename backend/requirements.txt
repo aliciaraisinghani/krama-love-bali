@@ -5,4 +5,7 @@ python-dotenv
 sentence-transformers
 pydantic
 scikit-learn
-numpy 
+numpy
+torch
+beautifulsoup4
+groq 

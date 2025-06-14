@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from typing import List
 import riot_service
-import embedding_service
+import embedding_service_optimized as embedding_service
 from models import PlayerProfile, Player, PlayerStats, GroupCreate, Group
 
 app = FastAPI()

@@ -1,16 +1,62 @@
 from sentence_transformers import SentenceTransformer
 from typing import List
 import numpy as np
+import torch
 from sklearn.metrics.pairwise import cosine_similarity
+import os
 
-# Load a pre-trained model for generating embeddings
-# Using a model that's good for semantic similarity
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# Optimize for M4 Mac
+def setup_device():
+    """Setup optimal device for M4 Mac"""
+    if torch.backends.mps.is_available():
+        device = torch.device("mps")  # Metal Performance Shaders for M4
+        print("🚀 Using Metal Performance Shaders (MPS) for M4 acceleration")
+    elif torch.cuda.is_available():
+        device = torch.device("cuda")
+        print("🚀 Using CUDA")
+    else:
+        device = torch.device("cpu")
+        print("💻 Using CPU")
+    return device
+
+# Set up device
+DEVICE = setup_device()
+
+# Optimize model selection for M4 Mac
+# Using a more powerful model that benefits from M4's performance
+MODEL_NAME = 'all-mpnet-base-v2'  # Better quality than MiniLM, good for M4
+
+# Load model with optimizations
+print(f"📥 Loading {MODEL_NAME} model...")
+model = SentenceTransformer(MODEL_NAME, device=DEVICE)
+
+# Enable mixed precision for M4 (if supported)
+if DEVICE.type == "mps":
+    # Set environment variables for optimal M4 performance
+    os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
+    print("⚡ Enabled MPS optimizations for M4")
 
 def generate_embedding(text: str) -> List[float]:
-    """Generate an embedding vector from text"""
-    embedding = model.encode([text])
+    """Generate an embedding vector from text with M4 optimizations"""
+    # Use the optimized model with device placement
+    embedding = model.encode([text], device=DEVICE, show_progress_bar=False)
     return embedding[0].tolist()
+
+def generate_embeddings_batch(texts: List[str], batch_size: int = 32) -> List[List[float]]:
+    """
+    Generate embeddings for multiple texts in batches - much faster on M4
+    """
+    print(f"🔄 Processing {len(texts)} texts in batches of {batch_size}")
+    
+    embeddings = model.encode(
+        texts, 
+        device=DEVICE,
+        batch_size=batch_size,
+        show_progress_bar=True,
+        convert_to_numpy=True
+    )
+    
+    return embeddings.tolist()
 
 def generate_player_description(bio: str, stats) -> str:
     """
@@ -32,23 +78,33 @@ def generate_player_description(bio: str, stats) -> str:
     
     return ". ".join(description_parts)
 
-def find_similar_players(query_embedding: List[float], player_embeddings: List[List[float]], top_k: int = 5) -> List[int]:
+def find_similar_players_optimized(query_embedding: List[float], player_embeddings: List[List[float]], top_k: int = 5) -> List[int]:
     """
-    Find the most similar players based on embedding similarity
-    Returns indices of the most similar players
+    Optimized similarity search using vectorized operations
     """
     if not player_embeddings:
         return []
     
-    query_array = np.array([query_embedding])
-    embeddings_array = np.array(player_embeddings)
+    # Use numpy for faster computation on M4
+    query_array = np.array([query_embedding], dtype=np.float32)
+    embeddings_array = np.array(player_embeddings, dtype=np.float32)
     
+    # Optimized cosine similarity computation
     similarities = cosine_similarity(query_array, embeddings_array)[0]
     
-    # Get indices of top_k most similar players
-    top_indices = np.argsort(similarities)[::-1][:top_k]
+    # Use argpartition for faster top-k selection (better than full sort)
+    if len(similarities) <= top_k:
+        top_indices = np.argsort(similarities)[::-1]
+    else:
+        # More efficient for large datasets
+        top_indices = np.argpartition(similarities, -top_k)[-top_k:]
+        top_indices = top_indices[np.argsort(similarities[top_indices])[::-1]]
     
     return top_indices.tolist()
+
+def find_similar_players(query_embedding: List[float], player_embeddings: List[List[float]], top_k: int = 5) -> List[int]:
+    """Wrapper for backward compatibility"""
+    return find_similar_players_optimized(query_embedding, player_embeddings, top_k)
 
 def generate_group_description(group_name: str, group_description: str, looking_for: str, member_descriptions: List[str]) -> str:
     """
@@ -102,17 +158,42 @@ def generate_group_description(group_name: str, group_description: str, looking_
 def find_similar_groups(query_embedding: List[float], group_embeddings: List[List[float]], top_k: int = 5) -> List[int]:
     """
     Find the most similar groups based on embedding similarity
-    Returns indices of the most similar groups
     """
-    if not group_embeddings:
-        return []
+    return find_similar_players_optimized(query_embedding, group_embeddings, top_k)
+
+def benchmark_performance():
+    """Benchmark the embedding performance on your M4"""
+    import time
     
-    query_array = np.array([query_embedding])
-    embeddings_array = np.array(group_embeddings)
+    print("🏃‍♂️ Benchmarking embedding performance on M4...")
     
-    similarities = cosine_similarity(query_array, embeddings_array)[0]
+    test_texts = [
+        "Competitive ADC player who likes to farm and scale into late game",
+        "Chill support main who enjoys helping the team",
+        "Aggressive jungle player who likes early game ganks",
+        "Mid lane mage player who focuses on team fights",
+        "Top lane tank player who enjoys protecting the team"
+    ] * 10  # 50 texts total
     
-    # Get indices of top_k most similar groups
-    top_indices = np.argsort(similarities)[::-1][:top_k]
+    # Single embedding benchmark
+    start_time = time.time()
+    for text in test_texts[:5]:
+        generate_embedding(text)
+    single_time = time.time() - start_time
     
-    return top_indices.tolist() 
+    # Batch embedding benchmark
+    start_time = time.time()
+    generate_embeddings_batch(test_texts)
+    batch_time = time.time() - start_time
+    
+    print(f"📊 Performance Results:")
+    print(f"   Single embeddings (5 texts): {single_time:.2f}s ({single_time/5:.3f}s per text)")
+    print(f"   Batch embeddings (50 texts): {batch_time:.2f}s ({batch_time/50:.3f}s per text)")
+    print(f"   🚀 Batch processing is {(single_time/5)/(batch_time/50):.1f}x faster!")
+    
+    return batch_time/50  # Return time per text for batch processing
+
+if __name__ == "__main__":
+    print("🔧 M4 Mac Optimized Embedding Service")
+    print("=" * 50)
+    benchmark_performance() 
