@@ -15,7 +15,7 @@ const MatchesTab = () => {
       winRate: "78%",
       status: "online",
       rank: "Gold II",
-      mainRole: "ADC",
+      mainRole: "Bot Lane",
       favoriteChamp: "Jinx"
     },
     {
@@ -51,7 +51,7 @@ const MatchesTab = () => {
       winRate: "60%",
       status: "offline",
       rank: "Gold III",
-      mainRole: "Mid",
+      mainRole: "Mid Lane",
       favoriteChamp: "Azir"
     },
     {
@@ -63,7 +63,7 @@ const MatchesTab = () => {
       winRate: "71%",
       status: "online",
       rank: "Gold I",
-      mainRole: "Top",
+      mainRole: "Top Lane",
       favoriteChamp: "Darius"
     },
     {
@@ -75,7 +75,7 @@ const MatchesTab = () => {
       winRate: "69%",
       status: "away",
       rank: "Silver II",
-      mainRole: "ADC",
+      mainRole: "Bot Lane",
       favoriteChamp: "Vayne"
     },
     {
@@ -99,7 +99,7 @@ const MatchesTab = () => {
       winRate: "57%",
       status: "online",
       rank: "Bronze I",
-      mainRole: "ADC",
+      mainRole: "Bot Lane",
       favoriteChamp: "Caitlyn"
     },
     {
@@ -111,7 +111,7 @@ const MatchesTab = () => {
       winRate: "76%",
       status: "online",
       rank: "Gold IV",
-      mainRole: "Mid",
+      mainRole: "Mid Lane",
       favoriteChamp: "Yasuo"
     },
     {
@@ -123,7 +123,7 @@ const MatchesTab = () => {
       winRate: "68%",
       status: "away",
       rank: "Silver III",
-      mainRole: "Top",
+      mainRole: "Top Lane",
       favoriteChamp: "Malphite"
     },
     {

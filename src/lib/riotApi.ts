@@ -755,10 +755,10 @@ export const getMostPlayedRole = (topChampions: ChampionMastery[]): string => {
   if (!topChampions.length) return 'Unknown';
   
   const roleScores: Record<string, number> = {
-    'Top': 0,
+    'Top Lane': 0,
     'Jungle': 0,
-    'Mid': 0,
-    'ADC': 0,
+    'Mid Lane': 0,
+    'Bot Lane': 0,
     'Support': 0
   };
   
@@ -768,8 +768,15 @@ export const getMostPlayedRole = (topChampions: ChampionMastery[]): string => {
     const weight = Math.max(1, 6 - index); // Give more weight to higher mastery champions
     
     roles.forEach(role => {
-      if (roleScores[role] !== undefined) {
-        roleScores[role] += weight;
+      // Map old role names to lane names
+      let laneRole = role;
+      if (role === 'Top') laneRole = 'Top Lane';
+      else if (role === 'Mid') laneRole = 'Mid Lane';
+      else if (role === 'ADC') laneRole = 'Bot Lane';
+      // Jungle and Support stay the same
+      
+      if (roleScores[laneRole] !== undefined) {
+        roleScores[laneRole] += weight;
       }
     });
   });
@@ -792,10 +799,10 @@ export const getMostPlayedRoleFromMatches = (matches: MatchDetails[], playerPuui
   if (!matches.length) return 'Unknown';
   
   const roleCounts: Record<string, number> = {
-    'Top': 0,
+    'Top Lane': 0,
     'Jungle': 0,
-    'Mid': 0,
-    'ADC': 0,
+    'Mid Lane': 0,
+    'Bot Lane': 0,
     'Support': 0
   };
   
@@ -804,19 +811,19 @@ export const getMostPlayedRoleFromMatches = (matches: MatchDetails[], playerPuui
     if (playerData) {
       let role = 'Unknown';
       
-      // Map Riot's position names to our role names
-      if (playerData.teamPosition === 'TOP') role = 'Top';
+      // Map Riot's position names to our lane names
+      if (playerData.teamPosition === 'TOP') role = 'Top Lane';
       else if (playerData.teamPosition === 'JUNGLE') role = 'Jungle';
-      else if (playerData.teamPosition === 'MIDDLE') role = 'Mid';
-      else if (playerData.teamPosition === 'BOTTOM') role = 'ADC';
+      else if (playerData.teamPosition === 'MIDDLE') role = 'Mid Lane';
+      else if (playerData.teamPosition === 'BOTTOM') role = 'Bot Lane';
       else if (playerData.teamPosition === 'UTILITY') role = 'Support';
       
       // Fallback to individualPosition if teamPosition is empty
       if (role === 'Unknown') {
-        if (playerData.individualPosition === 'TOP') role = 'Top';
+        if (playerData.individualPosition === 'TOP') role = 'Top Lane';
         else if (playerData.individualPosition === 'JUNGLE') role = 'Jungle';
-        else if (playerData.individualPosition === 'MIDDLE') role = 'Mid';
-        else if (playerData.individualPosition === 'BOTTOM') role = 'ADC';
+        else if (playerData.individualPosition === 'MIDDLE') role = 'Mid Lane';
+        else if (playerData.individualPosition === 'BOTTOM') role = 'Bot Lane';
         else if (playerData.individualPosition === 'UTILITY') role = 'Support';
       }
       
