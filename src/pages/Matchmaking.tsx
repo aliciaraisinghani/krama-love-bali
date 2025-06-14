@@ -41,6 +41,8 @@ interface MatchmakingFormData {
   playerType: string;
   champions: string;
   preference: string;
+  playstyle: string;
+  strengths: string;
   dealbreakers: string;
 }
 
@@ -154,6 +156,8 @@ const Matchmaking: React.FC = () => {
     playerType: '',
     champions: '',
     preference: '',
+    playstyle: '',
+    strengths: '',
     dealbreakers: ''
   });
 
@@ -202,6 +206,14 @@ const Matchmaking: React.FC = () => {
     
     if (formData.preference) {
       parts.push(formData.preference);
+    }
+
+    if (formData.playstyle) {
+      parts.push(`with strengths in ${formData.playstyle}`);
+    }
+
+    if (formData.strengths) {
+      parts.push(`My strengths are ${formData.strengths}`);
     }
     
     if (formData.dealbreakers) {
@@ -262,6 +274,8 @@ const Matchmaking: React.FC = () => {
       playerType: '',
       champions: '',
       preference: '',
+      playstyle: '',
+      strengths: '',
       dealbreakers: ''
     });
   };
@@ -821,7 +835,7 @@ const Matchmaking: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-lol-white mb-4">
-            Find your dream duo.
+            Forge your perfect duo with intelligence
           </h1>
           <p className="text-lg text-lol-white/60">
             Tell us what you're looking for and we'll help you find the perfect teammate.
@@ -875,6 +889,34 @@ const Matchmaking: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 text-2xl font-medium text-lol-white leading-relaxed">
+                    <span>with strengths in</span>
+                    <div className="min-w-[220px]">
+                      <Input
+                        placeholder="preferred playstyle"
+                        value={formData.playstyle}
+                        onChange={(e) => setFormData(prev => ({ ...prev, playstyle: e.target.value }))}
+                        className="h-10 text-lg border-2 border-green-400/30 bg-lol-gray-900 text-green-400 font-medium placeholder:text-green-400/50 focus:border-green-400 rounded-full px-4"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 text-2xl font-medium text-lol-white leading-relaxed">
+                    <span>My strengths are</span>
+                    <div className="min-w-[280px]">
+                      <Input
+                        placeholder="what people love about you"
+                        value={formData.strengths}
+                        onChange={(e) => setFormData(prev => ({ ...prev, strengths: e.target.value }))}
+                        className="h-10 text-lg border-2 border-yellow-400/30 bg-lol-gray-900 text-yellow-400 font-medium placeholder:text-yellow-400/50 focus:border-yellow-400 rounded-full px-4"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -909,7 +951,7 @@ const Matchmaking: React.FC = () => {
             <div className="mt-12 text-center">
               <Button 
                 onClick={handleSubmit}
-                disabled={!formData.playerType || !formData.preference || isSearching}
+                disabled={!formData.playerType || !formData.preference || !formData.playstyle || !formData.strengths || isSearching}
                 size="lg"
                 className="px-12 py-4 text-lg bg-gradient-to-r from-lol-gold to-lol-gold-dark hover:from-lol-gold-dark hover:to-lol-gold text-lol-black font-bold disabled:opacity-50"
               >

@@ -10,8 +10,8 @@ import {
 import { 
   Gamepad2, 
   MessageCircle, 
-  Swords, 
-  Heart,
+  Crosshair, 
+  Brain,
   ArrowRight,
   ArrowLeft,
   X,
@@ -42,14 +42,14 @@ const STEPS: { key: WizardStep; title: string; icon: any; description: string }[
   },
   {
     key: 'playstyle',
-    title: 'Playstyle Preferences',
-    icon: Swords,
+    title: 'Playstyle',
+    icon: Crosshair,
     description: 'Select all that describe your playstyle'
   },
   {
     key: 'attitude',
     title: 'Attitude & Mindset',
-    icon: Heart,
+    icon: Brain,
     description: 'What describes your gaming attitude?'
   }
 ];
@@ -112,9 +112,13 @@ export const PreferencesWizard: React.FC<PreferencesWizardProps> = ({
   };
 
   const handleBack = () => {
-    const prevIndex = currentStepIndex - 1;
-    if (prevIndex >= 0) {
-      setCurrentStep(STEPS[prevIndex].key);
+    if (currentStep === 'complete') {
+      setCurrentStep('attitude');
+    } else {
+      const prevIndex = currentStepIndex - 1;
+      if (prevIndex >= 0) {
+        setCurrentStep(STEPS[prevIndex].key);
+      }
     }
   };
 
@@ -180,7 +184,6 @@ export const PreferencesWizard: React.FC<PreferencesWizardProps> = ({
               <Button
                 variant="outline"
                 onClick={handleBack}
-                disabled={currentStepIndex === 0}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
@@ -267,13 +270,16 @@ export const PreferencesWizard: React.FC<PreferencesWizardProps> = ({
               </Button>
               <div className="flex flex-wrap gap-2 flex-1 mx-4 justify-center">
                 {preferences.playstyle.length > 0 && (
-                  <div className="flex flex-wrap gap-2 items-center">
-                    <span className="text-sm text-gray-500 font-medium">Selected ({preferences.playstyle.length}):</span>
-                    {preferences.playstyle.map((style) => (
-                      <Badge key={style} variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
-                        {PREFERENCE_OPTIONS.playstyle.find(opt => opt.value === style)?.label}
-                      </Badge>
-                    ))}
+                  <div className="flex items-start gap-3">
+                    <Crosshair className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <span className="text-sm text-gray-300">Playstyle:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {preferences.playstyle.map((style) => (
+                        <Badge key={style} variant="outline" className="text-xs border-gray-600 text-gray-200">
+                          {PREFERENCE_OPTIONS.playstyle.find(opt => opt.value === style)?.label}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -371,7 +377,7 @@ export const PreferencesWizard: React.FC<PreferencesWizardProps> = ({
                 )}
                 {preferences.playstyle.length > 0 && (
                   <div className="flex items-start gap-3">
-                    <Swords className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <Crosshair className="w-5 h-5 text-gray-400 mt-0.5" />
                     <span className="text-sm text-gray-300">Playstyle:</span>
                     <div className="flex flex-wrap gap-1">
                       {preferences.playstyle.map((style) => (
@@ -384,7 +390,7 @@ export const PreferencesWizard: React.FC<PreferencesWizardProps> = ({
                 )}
                 {preferences.attitude.length > 0 && (
                   <div className="flex items-start gap-3">
-                    <Heart className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <Brain className="w-5 h-5 text-gray-400 mt-0.5" />
                     <span className="text-sm text-gray-300">Attitude:</span>
                     <div className="flex flex-wrap gap-1">
                       {preferences.attitude.map((att) => (
@@ -404,7 +410,15 @@ export const PreferencesWizard: React.FC<PreferencesWizardProps> = ({
             </div>
 
             <Button onClick={handleComplete} size="lg" className="w-full">
-              Continue to League Hub
+              Continue to EZLFP
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              className="w-full bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700 hover:text-white"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
             </Button>
           </div>
         );
@@ -435,7 +449,7 @@ export const PreferencesWizard: React.FC<PreferencesWizardProps> = ({
             Step {currentStepIndex + 1} of {STEPS.length}
           </span>
           <span className="text-sm text-gray-500">
-            {Math.round(((currentStepIndex + 1) / STEPS.length) * 100)}% Complete
+            {Math.round(((currentStepIndex + 1) / STEPS.length) * 100)}% complete
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">

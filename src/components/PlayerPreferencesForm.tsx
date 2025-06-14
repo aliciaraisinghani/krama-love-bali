@@ -18,7 +18,9 @@ import {
   Swords, 
   Heart,
   Save,
-  RotateCcw
+  RotateCcw,
+  Palette,
+  BrainCircuit
 } from 'lucide-react';
 
 interface PlayerPreferencesFormProps {
@@ -31,14 +33,14 @@ interface PlayerPreferencesFormProps {
 const CATEGORY_ICONS = {
   competitiveIntent: Gamepad2,
   communication: MessageCircle,
-  playstyle: Swords,
-  attitude: Heart
+  playstyle: Palette,
+  attitude: BrainCircuit
 };
 
 const CATEGORY_TITLES = {
   competitiveIntent: 'Competitive Intent',
   communication: 'Communication Style',
-  playstyle: 'Playstyle Preferences',
+  playstyle: 'Playstyle',
   attitude: 'Attitude & Mindset'
 };
 
@@ -221,7 +223,7 @@ export const PlayerPreferencesForm: React.FC<PlayerPreferencesFormProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Swords className="h-5 w-5" />
+            <Palette className="h-5 w-5" />
             {CATEGORY_TITLES.playstyle}
           </CardTitle>
           <CardDescription>
@@ -272,7 +274,7 @@ export const PlayerPreferencesForm: React.FC<PlayerPreferencesFormProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Heart className="h-5 w-5" />
+            <BrainCircuit className="h-5 w-5" />
             {CATEGORY_TITLES.attitude}
           </CardTitle>
           <CardDescription>

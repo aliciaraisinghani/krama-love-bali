@@ -12,10 +12,10 @@ import {
   User, 
   Github, 
   Chrome,
-  Shield,
+  ShieldCheck,
   Users,
   Zap,
-  Sword
+  TrendingUp
 } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 
@@ -105,47 +105,63 @@ const LoginView = ({ onLogin }: LoginViewProps) => {
               />
             </div>
             <p className="text-xl text-lol-white/70 max-w-md mx-auto lg:mx-0">
-              Find your perfect duo partner and climb the ranked ladder together in League of Legends
+              Find your perfect duo partner and climb the ranked ladder together
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto lg:mx-0">
             <div className="flex items-center space-x-3 text-lol-white/80">
-              <div className="p-2 bg-gradient-gold rounded-lg">
-                <Users className="h-5 w-5 text-lol-black" />
+              <div className="p-2 bg-gradient-blue rounded-lg">
+                <Users className="h-5 w-5 text-white" />
               </div>
               <span>Find Your Duo</span>
             </div>
             <div className="flex items-center space-x-3 text-lol-white/80">
-              <div className="p-2 bg-gradient-blue rounded-lg">
-                <Zap className="h-5 w-5 text-white" />
+              <div className="p-2 bg-gradient-gold rounded-lg">
+                <Zap className="h-5 w-5 text-lol-black" />
               </div>
               <span>Instant Matching</span>
             </div>
             <div className="flex items-center space-x-3 text-lol-white/80">
-              <div className="p-2 bg-gradient-gold rounded-lg">
-                <Shield className="h-5 w-5 text-lol-black" />
+              <div className="p-2 bg-gradient-blue rounded-lg">
+                <ShieldCheck className="h-5 w-5 text-white" />
               </div>
               <span>Rank Verified</span>
             </div>
             <div className="flex items-center space-x-3 text-lol-white/80">
-              <div className="p-2 bg-gradient-blue rounded-lg">
-                <Sword className="h-5 w-5 text-white" />
+              <div className="p-2 bg-gradient-gold rounded-lg">
+                <TrendingUp className="h-5 w-5 text-lol-black" />
               </div>
               <span>Climb Together</span>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
-            <Badge className="bg-lol-gold text-lol-black">
-              League of Legends
-            </Badge>
-            <Badge variant="outline" className="border-lol-blue text-lol-blue">
-              Ranked Ready
-            </Badge>
-            <Badge variant="outline" className="border-lol-blue text-lol-blue">
-              All Roles
-            </Badge>
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+              <Badge className="bg-lol-gold text-lol-black">
+                League of Legends
+              </Badge>
+              <Badge className="bg-lol-gold text-lol-black">
+                Valorant
+              </Badge>
+              <Badge className="bg-lol-gold text-lol-black">
+                Marvel Rivals
+              </Badge>
+              <div className="basis-full h-0"></div>
+              <Badge className="bg-lol-gold text-lol-black">
+                Dota 2
+              </Badge>
+              <Badge className="bg-lol-gold text-lol-black">
+                Overwatch 2
+              </Badge>
+              <div className="basis-full h-0"></div>
+              <Badge variant="outline" className="border-lol-blue text-lol-blue">
+                Ranked Ready
+              </Badge>
+              <Badge variant="outline" className="border-lol-blue text-lol-blue">
+                All Roles
+              </Badge>
+            </div>
           </div>
         </div>
 
@@ -215,6 +231,9 @@ const LoginView = ({ onLogin }: LoginViewProps) => {
                     >
                       {isLoading ? 'Signing In...' : 'Sign In'}
                     </Button>
+                    <p className="text-center text-sm text-lol-white/40">
+                      Forgot Password?
+                    </p>
                   </form>
                 </TabsContent>
 

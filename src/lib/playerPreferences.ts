@@ -7,11 +7,11 @@ export interface PlayerPreferences {
 
 export const PREFERENCE_OPTIONS = {
   competitiveIntent: [
-    { value: 'for-fun', label: 'Playing for Fun', description: 'Casual gameplay, enjoying the experience' },
-    { value: 'play-to-win', label: 'Play to Win', description: 'Focused on winning and improvement' }
+    { value: 'for-fun', label: 'I play to win', description: 'Casual gameplay, enjoying the experience' },
+    { value: 'play-to-win', label: 'I play for fun', description: 'Focused on winning and improvement' }
   ],
   communication: [
-    { value: 'voice-comm', label: 'Voice Communication', description: 'Prefers voice chat for coordination' },
+    { value: 'voice-comm', label: 'Voice', description: 'Prefers voice chat for coordination' },
     { value: 'text-chat', label: 'Text Chat', description: 'Uses text chat for communication' },
     { value: 'no-comms', label: 'No Communication', description: 'Prefers minimal communication' }
   ],
@@ -24,7 +24,12 @@ export const PREFERENCE_OPTIONS = {
     { value: 'team-fighter', label: 'Team Fighter', description: 'Excels in team fights and group plays' },
     { value: 'split-pusher', label: 'Split Pusher', description: 'Prefers side lane pressure and 1v1s' },
     { value: 'roamer', label: 'Roamer', description: 'Likes to move around the map and help teammates' },
-    { value: 'objective-focused', label: 'Objective Focused', description: 'Prioritizes dragons, baron, and towers' }
+    { value: 'objective-focused', label: 'Objective Focused', description: 'Prioritizes dragons, baron, and towers' },
+    { value: 'all-in-diver', label: 'All-In Diver', description: 'Specializes in diving the enemy backline' },
+    { value: 'dedicated-split-pusher', label: 'Dedicated Split-Pusher', description: 'Applies constant side lane pressure' },
+    { value: 'protective-peeler', label: 'Protective Peeler', description: 'Focuses on protecting key teammates' },
+    { value: 'opportunistic-flanker', label: 'Opportunistic Flanker', description: 'Looks for openings to flank the enemy' },
+    { value: 'siege-commander', label: 'Siege Commander', description: 'Excels at sieging and controlling objectives' }
   ],
   attitude: [
     { value: 'positive', label: 'Positive', description: 'Maintains a positive attitude' },

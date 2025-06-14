@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Users, Heart, History } from 'lucide-react';
+import { User, Users, Heart, List } from 'lucide-react';
 import ProfileTab from '../components/ProfileTab';
 import MatchesTab from '../components/MatchesTab';
 import Matchmaking from './Matchmaking';
@@ -76,7 +76,7 @@ const Index = () => {
               {[
                 { id: 'profile', icon: User, label: 'My Profile' },
                 { id: 'matchmaking', icon: Users, label: 'Matching' },
-                { id: 'matches', icon: History, label: 'Duo History' },
+                { id: 'matches', icon: List, label: 'Duo History' },
               ].map(({ id, icon: Icon, label }) => (
                 <button
                   key={id}
@@ -112,7 +112,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="text-center text-lol-white/40 text-sm">
             <div className="flex items-center justify-center gap-2">
-              <span>© 2024</span>
+              <span>© 2025</span>
               <img 
                 src="/ezlfp-logo.png" 
                 alt="EZLFP" 

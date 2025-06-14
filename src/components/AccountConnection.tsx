@@ -180,7 +180,7 @@ const AccountConnection = ({ onComplete }: AccountConnectionProps) => {
             </h1>
           </div>
           <p className="text-lol-white/70 text-lg max-w-2xl mx-auto">
-            Link your gaming accounts to enhance your experience and find the perfect teammates
+            Link your gaming accounts to enhance your experience <br /> find the perfect teammates
           </p>
         </div>
 
@@ -365,7 +365,7 @@ const AccountConnection = ({ onComplete }: AccountConnectionProps) => {
             >
               {canContinue ? (
                 <>
-                  Continue to League Hub
+                  Continue to EZLFP
                   <ExternalLink className="w-5 h-5 ml-2" />
                 </>
               ) : (
