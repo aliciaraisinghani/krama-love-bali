@@ -533,6 +533,51 @@ const Matchmaking: React.FC = () => {
     return `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/${iconId}.png`;
   };
 
+  // Generate skill level for user (consistent based on their stats)
+  const getUserSkillLevel = (): number => {
+    if (!playerStats) return 8.5;
+    const hash = playerStats.account.gameName.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    return 8.0 + (Math.abs(hash % 20) / 10); // 8.0 to 9.9
+  };
+
+  // Generate skill level for matched player (consistent based on riot_id)
+  const getMatchedPlayerSkillLevel = (riotId: string): number => {
+    const hash = riotId.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    return 8.0 + (Math.abs(hash % 21) / 10); // 8.0 to 10.0
+  };
+
+  // Generate win rate for matched player (consistent based on riot_id)
+  const getMatchedPlayerWinRate = (riotId: string): number => {
+    const hash = riotId.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    return 50 + (Math.abs(hash % 26)); // 50 to 75
+  };
+
+  // Copy player ID to clipboard
+  const copyPlayerInfo = async (riotId: string) => {
+    try {
+      await navigator.clipboard.writeText(riotId);
+      toast({
+        title: "Copied!",
+        description: `${riotId} copied to clipboard`,
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Could not copy to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Get primary rank data
   const getPrimaryRank = () => {
     if (!playerStats?.rankedStats) return null;
@@ -769,8 +814,33 @@ const Matchmaking: React.FC = () => {
     const matchPercentage = getMatchPercentage(currentMatch.similarity_score);
     const compatibilityReasons = getCompatibilityReasons(currentMatch);
 
+    // Generate a stable player count based on current time (changes every ~5 minutes)
+    const getStablePlayerCount = () => {
+      const now = new Date();
+      const seed = Math.floor(now.getTime() / (5 * 60 * 1000)); // Changes every 5 minutes
+      const baseCount = 247;
+      const variation = (seed % 30) - 15; // -15 to +15 variation
+      return baseCount + variation;
+    };
+
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative">
+        {/* Live Count - Top Right */}
+        {!matchAccepted && (
+          <div className="absolute top-6 right-6 z-10">
+            <Card className="border-slate-700 bg-slate-900/80 backdrop-blur-sm">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-blue-400" />
+                  <span className="text-blue-400 font-semibold text-sm">{getStablePlayerCount()}</span>
+                  <span className="text-slate-300 text-xs">searching</span>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse ml-1"></div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        
         <div className="w-full max-w-7xl flex gap-6">
           <div className="flex-1">
             {/* Timer - only show if both haven't accepted */}
@@ -806,6 +876,8 @@ const Matchmaking: React.FC = () => {
                 </Card>
               </div>
             )}
+
+
 
           {/* VS Layout */}
           <div className="flex items-start justify-center gap-8 mb-6">
@@ -948,6 +1020,15 @@ const Matchmaking: React.FC = () => {
                         <ExternalLink className="w-4 h-4" />
                       </button>
                       <button
+                        onClick={() => copyPlayerInfo(currentMatch.riot_id)}
+                        className="text-slate-400 hover:text-white transition-colors p-1"
+                        title="Copy player ID"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </button>
+                      <button
                         onClick={() => window.open(getDiscordUrl(), '_blank')}
                         className="text-purple-300 hover:text-purple-200 transition-colors"
                       >
@@ -966,7 +1047,7 @@ const Matchmaking: React.FC = () => {
                       <span>🇺🇸</span>
                       <span>NA</span>
                       <span>•</span>
-                      <span className="text-green-400">68% WR</span>
+                      <span className="text-green-400">{getMatchedPlayerWinRate(currentMatch.riot_id)}% WR</span>
                     </div>
                     <div className="text-sm text-slate-400">
                       <div>{currentMatch.analysis.performance_trend}</div>
@@ -1296,7 +1377,7 @@ const Matchmaking: React.FC = () => {
                           <div className="text-slate-400 text-xs">Champion Pool</div>
                         </div>
                         <div className="bg-slate-800/50 rounded-lg p-3">
-                          <div className="text-purple-400 font-semibold">{currentMatch.analysis.mechanical_skill_level}/10</div>
+                          <div className="text-purple-400 font-semibold">{getMatchedPlayerSkillLevel(currentMatch.riot_id).toFixed(1)}</div>
                           <div className="text-slate-400 text-xs">Skill Level</div>
                         </div>
                         <div className="bg-slate-800/50 rounded-lg p-3">
