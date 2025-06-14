@@ -86,13 +86,43 @@ def create_improved_embedding_text(player: Dict) -> str:
     if compatibility:
         parts.append(compatibility)
     
-    # 5. Add gameplay style keywords based on champions
+    # 5. Add comprehensive analysis data
+    comprehensive_analysis = player.get('comprehensive_analysis', {})
+    
+    # Add pace preference
+    pace_preference = comprehensive_analysis.get('pace_preference', '')
+    if pace_preference:
+        parts.append(f"Game pace preference: {pace_preference}")
+    
+    # Add CS pattern and average CS per minute
+    cs_pattern = comprehensive_analysis.get('cs_pattern', '')
+    avg_cs_per_min = comprehensive_analysis.get('average_cs_per_min', 0)
+    
+    if cs_pattern:
+        parts.append(f"CS farming style: {cs_pattern}")
+    
+    if avg_cs_per_min > 0:
+        # Categorize CS skill level
+        if avg_cs_per_min >= 7.5:
+            cs_level = "excellent"
+        elif avg_cs_per_min >= 6.5:
+            cs_level = "high"
+        elif avg_cs_per_min >= 5.5:
+            cs_level = "good"
+        elif avg_cs_per_min >= 4.5:
+            cs_level = "moderate"
+        else:
+            cs_level = "developing"
+        
+        parts.append(f"CS skill: {cs_level} ({avg_cs_per_min:.1f} CS/min)")
+    
+    # 6. Add gameplay style keywords based on champions
     gameplay_keywords = []
     for champ in champions[:3]:
         champ_lower = champ.lower()
         if champ_lower in ['graves', 'lee sin', 'elise', 'nidalee']:
             gameplay_keywords.extend(['aggressive', 'early game', 'invade'])
-        elif champ_lower in ['karthus', 'fiddlesticks', 'amumu']:
+        elif champ_lower in ['karthus', 'fiddlesticks', 'ammu']:
             gameplay_keywords.extend(['farming', 'scaling', 'teamfight'])
         elif champ_lower in ['shaco', 'evelynn', 'rengar']:
             gameplay_keywords.extend(['stealth', 'assassin', 'picks'])
