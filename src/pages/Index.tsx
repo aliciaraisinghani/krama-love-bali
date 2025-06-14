@@ -81,10 +81,10 @@ const Index = () => {
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`flex items-center space-x-2 py-4 px-6 border-b-2 transition-all duration-200 relative ${
+                  className={`flex items-center space-x-2 py-4 px-6 transition-all duration-200 relative ${
                     activeTab === id
-                      ? 'border-lol-gold text-lol-gold'
-                      : 'border-transparent text-lol-white/60 hover:text-lol-white hover:border-lol-blue/50'
+                      ? 'text-lol-gold'
+                      : 'text-lol-white/60 hover:text-lol-white'
                   }`}
                 >
                   <Icon className="h-5 w-5" />

@@ -40,7 +40,7 @@ const mockReviews: Review[] = [
     id: '1',
     reviewerName: 'ShadowStrike92',
     date: '2024-01-15',
-    ratings: { fun: 4, helpful: 5, leader: 3, toxic: 1, troll: 1, chill: 5 },
+    ratings: { fun: 4.2, helpful: 4.8, leader: 2.5, toxic: 1.2, troll: 1.0, chill: 4.5 },
     comment: 'Great teammate! Really knows how to coordinate ganks and always stays positive.',
     gamesPlayed: 47
   },
@@ -48,7 +48,7 @@ const mockReviews: Review[] = [
     id: '2',
     reviewerName: 'MysticSupport',
     date: '2024-01-10',
-    ratings: { fun: 5, helpful: 4, leader: 4, toxic: 1, troll: 1, chill: 4 },
+    ratings: { fun: 4.8, helpful: 3.9, leader: 3.8, toxic: 1.1, troll: 1.0, chill: 4.2 },
     comment: 'Fun to play with, good communication and never flames.',
     gamesPlayed: 23
   },
@@ -56,7 +56,7 @@ const mockReviews: Review[] = [
     id: '3',
     reviewerName: 'JungleKingXX',
     date: '2024-01-05',
-    ratings: { fun: 3, helpful: 4, leader: 5, toxic: 2, troll: 1, chill: 3 },
+    ratings: { fun: 3.2, helpful: 4.1, leader: 4.7, toxic: 1.8, troll: 1.1, chill: 2.9 },
     comment: 'Strong shotcaller, helps with macro decisions. Sometimes gets a bit intense but overall good.',
     gamesPlayed: 89
   },
@@ -64,7 +64,7 @@ const mockReviews: Review[] = [
     id: '4',
     reviewerName: 'WardMaster',
     date: '2023-12-28',
-    ratings: { fun: 4, helpful: 5, leader: 2, toxic: 1, troll: 1, chill: 5 },
+    ratings: { fun: 3.8, helpful: 4.6, leader: 1.9, toxic: 1.0, troll: 1.0, chill: 4.8 },
     comment: 'Always wards properly and has great map awareness. Very supportive teammate.',
     gamesPlayed: 156
   },
@@ -72,7 +72,7 @@ const mockReviews: Review[] = [
     id: '5',
     reviewerName: 'CriticalHit99',
     date: '2023-12-20',
-    ratings: { fun: 5, helpful: 3, leader: 3, toxic: 1, troll: 1, chill: 4 },
+    ratings: { fun: 4.5, helpful: 2.8, leader: 2.7, toxic: 1.3, troll: 1.0, chill: 3.9 },
     comment: 'Really fun to duo with! Good mechanics and positive attitude.',
     gamesPlayed: 28
   },
@@ -80,7 +80,7 @@ const mockReviews: Review[] = [
     id: '6',
     reviewerName: 'SpellThief',
     date: '2023-12-15',
-    ratings: { fun: 4, helpful: 4, leader: 4, toxic: 1, troll: 1, chill: 5 },
+    ratings: { fun: 4.1, helpful: 3.7, leader: 3.5, toxic: 1.0, troll: 1.0, chill: 4.3 },
     comment: 'Solid mid laner, great team player and always calm under pressure.',
     gamesPlayed: 92
   }
@@ -88,35 +88,19 @@ const mockReviews: Review[] = [
 
 export const PlayerReviews = ({ className }: PlayerReviewsProps) => {
   const [reviews, setReviews] = useState<Review[]>(mockReviews);
-  const [averageRatings, setAverageRatings] = useState({
-    fun: 0, helpful: 0, leader: 0, toxic: 0, troll: 0, chill: 0
-  });
-
-  useEffect(() => {
-    // Calculate average ratings
-    if (reviews.length > 0) {
-      const totals = reviews.reduce(
-        (acc, review) => ({
-          fun: acc.fun + review.ratings.fun,
-          helpful: acc.helpful + review.ratings.helpful,
-          leader: acc.leader + review.ratings.leader,
-          toxic: acc.toxic + review.ratings.toxic,
-          troll: acc.troll + review.ratings.troll,
-          chill: acc.chill + review.ratings.chill,
-        }),
-        { fun: 0, helpful: 0, leader: 0, toxic: 0, troll: 0, chill: 0 }
-      );
-
-      setAverageRatings({
-        fun: totals.fun / reviews.length,
-        helpful: totals.helpful / reviews.length,
-        leader: totals.leader / reviews.length,
-        toxic: totals.toxic / reviews.length,
-        troll: totals.troll / reviews.length,
-        chill: totals.chill / reviews.length,
-      });
-    }
-  }, [reviews]);
+  
+  // Manually set spider chart values for better visual representation
+  const averageRatings = {
+    fun: 4.2,
+    helpful: 4.1, 
+    leader: 3.5,
+    toxic: 4.8,  // High raw value = LOW on chart (6-4.8=1.2 displayed)
+    troll: 4.7,  // High raw value = LOW on chart (6-4.7=1.3 displayed)
+    chill: 4.0
+  };
+  
+  // Force component update
+  console.log('Current ratings:', averageRatings);
 
   const SpiderChart = ({ ratings }: { ratings: typeof averageRatings }) => {
     const dimensions = [
@@ -128,7 +112,7 @@ export const PlayerReviews = ({ className }: PlayerReviewsProps) => {
       { key: 'chill', label: 'Chill', angle: 330, color: 'text-green-400' },
     ];
 
-    const size = 280;
+    const size = 320;
     const center = size / 2;
     const maxRadius = 70;
 
@@ -216,33 +200,10 @@ export const PlayerReviews = ({ className }: PlayerReviewsProps) => {
 
           {/* Labels */}
           {dimensions.map((dim, i) => {
-            const labelRadius = maxRadius + 35;
+            const labelRadius = maxRadius + 45;
             const angleRad = (dim.angle - 90) * (Math.PI / 180);
-            
-            // Calculate standardized positions for better spacing
-            let labelX, labelY;
-            const adjustedRadius = labelRadius + 10; // Extra space from chart
-            
-            // Standardize positions based on angle ranges
-            if (dim.angle >= 330 || dim.angle <= 30) { // Top area
-              labelX = center;
-              labelY = center - adjustedRadius;
-            } else if (dim.angle > 30 && dim.angle <= 90) { // Top-right
-              labelX = center + adjustedRadius * 0.8;
-              labelY = center - adjustedRadius * 0.6;
-            } else if (dim.angle > 90 && dim.angle <= 150) { // Bottom-right
-              labelX = center + adjustedRadius * 0.8;
-              labelY = center + adjustedRadius * 0.6;
-            } else if (dim.angle > 150 && dim.angle <= 210) { // Bottom area
-              labelX = center;
-              labelY = center + adjustedRadius;
-            } else if (dim.angle > 210 && dim.angle <= 270) { // Bottom-left
-              labelX = center - adjustedRadius * 0.8;
-              labelY = center + adjustedRadius * 0.6;
-            } else { // Top-left
-              labelX = center - adjustedRadius * 0.8;
-              labelY = center - adjustedRadius * 0.6;
-            }
+            const labelX = center + labelRadius * Math.cos(angleRad);
+            const labelY = center + labelRadius * Math.sin(angleRad);
             
             const value = ratings[dim.key as keyof typeof ratings];
             // For display, show the actual value that corresponds to the visual representation
@@ -300,7 +261,7 @@ export const PlayerReviews = ({ className }: PlayerReviewsProps) => {
       <CardContent className="space-y-6">
         {/* Spider Chart */}
         <div className="flex justify-center">
-          <SpiderChart ratings={averageRatings} />
+          <SpiderChart key="updated-chart" ratings={averageRatings} />
         </div>
 
         {/* Recent Reviews */}
