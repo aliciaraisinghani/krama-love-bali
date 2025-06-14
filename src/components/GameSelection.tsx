@@ -19,7 +19,6 @@ interface GameSelectionProps {
 
 const GameSelection = ({ onGameSelect }: GameSelectionProps) => {
   const { toast } = useToast();
-  const [selectedGame, setSelectedGame] = useState<string | null>(null);
 
   const games = [
     {
@@ -89,18 +88,13 @@ const GameSelection = ({ onGameSelect }: GameSelectionProps) => {
       return;
     }
     
-    setSelectedGame(game.id);
-  };
-
-  const handleContinue = () => {
-    if (selectedGame) {
-      onGameSelect(selectedGame);
-    }
+    // Immediately proceed to next step for available games
+    onGameSelect(game.id);
   };
 
   return (
     <div className="min-h-screen bg-gradient-lol flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl space-y-8">
+      <div className="w-full max-w-7xl space-y-8">
         
         {/* Header */}
         <div className="text-center space-y-4">
@@ -112,80 +106,69 @@ const GameSelection = ({ onGameSelect }: GameSelectionProps) => {
           </p>
         </div>
 
-        {/* Game Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Game Grid - Single Row */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
           {games.map((game) => {
             const Icon = game.icon;
-            const isSelected = selectedGame === game.id;
             
             return (
               <Card
                 key={game.id}
                 className={`relative cursor-pointer transition-all duration-300 border-2 overflow-hidden ${
                   game.available 
-                    ? `hover:scale-105 border-lol-gray-700 hover:border-lol-blue bg-lol-gray-800/50 ${
-                        isSelected ? 'border-lol-gold bg-lol-gold/10 shadow-lg shadow-lol-gold/20' : ''
-                      }`
-                    : 'border-lol-gray-700 bg-lol-gray-800/30 opacity-75'
+                    ? `hover:scale-110 hover:shadow-xl border-lol-gray-700 hover:border-lol-gold bg-lol-gray-800/50 hover:bg-lol-gray-700/70 transform hover:z-10`
+                    : 'border-lol-gray-700 bg-lol-gray-800/30 opacity-75 hover:opacity-90'
                 }`}
                 onClick={() => handleGameClick(game)}
               >
                 {!game.available && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-                    <Badge variant="secondary" className="bg-lol-gray-700 text-lol-white flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
+                    <Badge variant="secondary" className="bg-lol-gray-700 text-lol-white flex items-center gap-1 text-xs">
+                      <Clock className="w-3 h-3" />
                       Coming Soon
                     </Badge>
                   </div>
                 )}
                 
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className={`p-3 rounded-lg bg-gradient-to-br ${game.gradient}`}>
-                      <Icon className="w-8 h-8 text-white" />
+                <CardContent className="p-4 h-full flex flex-col justify-between space-y-3">
+                  <div className="text-center space-y-2">
+                    <div className={`mx-auto w-12 h-12 rounded-lg bg-gradient-to-br ${game.gradient} flex items-center justify-center`}>
+                      <Icon className="w-6 h-6 text-white" />
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-lol-white/60">{game.players}</p>
-                      <p className="text-xs text-lol-white/40">{game.genre}</p>
+                    
+                    <div>
+                      <h3 className="text-lg font-bold text-lol-white leading-tight">{game.name}</h3>
+                      <p className="text-xs text-lol-white/60 mt-1">{game.genre}</p>
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-lol-white">{game.name}</h3>
-                    <p className="text-sm text-lol-white/70">{game.description}</p>
-                  </div>
-                  
-                  {game.available && (
-                    <div className="flex items-center justify-between">
-                      <Badge variant="outline" className="border-lol-blue text-lol-blue">
-                        Available Now
+                  <div className="text-center space-y-2">
+                    <p className="text-xs text-lol-white/70">{game.description}</p>
+                    
+                    <div className="flex flex-col items-center gap-1">
+                      <Badge variant="outline" className="text-xs border-lol-blue text-lol-blue">
+                        {game.players}
                       </Badge>
-                      {isSelected && (
-                        <Badge className="bg-lol-gold text-lol-black">
-                          Selected
+                      
+                      {game.available && (
+                        <Badge className="bg-lol-gold text-lol-black text-xs">
+                          Available
                         </Badge>
                       )}
                     </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             );
           })}
         </div>
 
-        {/* Continue Button */}
-        {selectedGame && (
-          <div className="text-center pt-6">
-            <Button
-              onClick={handleContinue}
-              size="lg"
-              className="bg-gradient-gold hover:bg-lol-gold-dark text-lol-black font-bold px-8 py-3 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-lol-gold/30"
-            >
-              Continue to {games.find(g => g.id === selectedGame)?.name}
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </div>
-        )}
+        {/* Info Text */}
+        <div className="text-center">
+          <p className="text-lol-white/50 text-sm">
+            Click on an available game to get started. More games coming soon!
+          </p>
+        </div>
       </div>
     </div>
   );

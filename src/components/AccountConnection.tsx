@@ -72,6 +72,9 @@ const AccountConnection = ({ onComplete }: AccountConnectionProps) => {
       // Get player stats for verification
       const playerStats = await riotApiService.getPlayerStats(formData.riotId, formData.riotTag);
       
+      // Save player stats to localStorage for use in ProfileTab
+      localStorage.setItem('playerStats', JSON.stringify(playerStats));
+      
       setRiotAccountInfo({
         summonerName: playerStats.summoner.name,
         level: playerStats.summoner.summonerLevel
