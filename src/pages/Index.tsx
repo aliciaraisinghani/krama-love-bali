@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Users, Heart } from 'lucide-react';
+import { User, Users, Heart, History } from 'lucide-react';
 import ProfileTab from '../components/ProfileTab';
 import MatchesTab from '../components/MatchesTab';
 import Matchmaking from './Matchmaking';
@@ -58,47 +58,46 @@ const Index = () => {
   // Main app with LoL theming
   return (
     <div className="min-h-screen bg-lol-black text-lol-white">
-      {/* Header */}
-      <header className="bg-lol-gray-900 border-b border-lol-blue/30 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-center">
-            <img 
-              src="/ezlfp-logo.png" 
-              alt="EZLFP" 
-              className="h-16 w-auto"
-            />
-          </div>
-          <p className="text-center text-sm text-lol-white/60 mt-1">
-            Find your perfect League of Legends duo partner
-          </p>
-        </div>
-      </header>
-
-      {/* Navigation Tabs */}
-      <nav className="bg-lol-gray-800 border-b border-lol-gray-700">
+      {/* Navigation Tabs with Logo */}
+      <nav className="bg-lol-gray-800 border-b border-lol-gray-700 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-center space-x-8">
-            {[
-              { id: 'profile', icon: User, label: 'My Profile' },
-              { id: 'matchmaking', icon: Heart, label: 'Matchmaking' },
-              { id: 'matches', icon: Users, label: 'Matches' },
-            ].map(({ id, icon: Icon, label }) => (
-              <button
-                key={id}
-                onClick={() => setActiveTab(id)}
-                className={`flex items-center space-x-2 py-4 px-6 border-b-2 transition-all duration-200 relative ${
-                  activeTab === id
-                    ? 'border-lol-gold text-lol-gold'
-                    : 'border-transparent text-lol-white/60 hover:text-lol-white hover:border-lol-blue/50'
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="font-medium">{label}</span>
-                {activeTab === id && (
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-lol-gold animate-glow"></div>
-                )}
-              </button>
-            ))}
+          <div className="flex items-center justify-between">
+            {/* Logo on the left */}
+            <div className="flex items-center">
+              <img 
+                src="/ezlfp-logo.png" 
+                alt="EZLFP" 
+                className="h-12 w-auto"
+              />
+            </div>
+            
+            {/* Navigation tabs in the center */}
+            <div className="flex justify-center space-x-8">
+              {[
+                { id: 'profile', icon: User, label: 'My Profile' },
+                { id: 'matchmaking', icon: Users, label: 'Matching' },
+                { id: 'matches', icon: History, label: 'Duo History' },
+              ].map(({ id, icon: Icon, label }) => (
+                <button
+                  key={id}
+                  onClick={() => setActiveTab(id)}
+                  className={`flex items-center space-x-2 py-4 px-6 border-b-2 transition-all duration-200 relative ${
+                    activeTab === id
+                      ? 'border-lol-gold text-lol-gold'
+                      : 'border-transparent text-lol-white/60 hover:text-lol-white hover:border-lol-blue/50'
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span className="font-medium">{label}</span>
+                  {activeTab === id && (
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-lol-gold animate-glow"></div>
+                  )}
+                </button>
+              ))}
+            </div>
+            
+            {/* Empty div for balance */}
+            <div className="w-12"></div>
           </div>
         </div>
       </nav>

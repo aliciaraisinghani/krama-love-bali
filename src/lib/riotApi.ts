@@ -368,7 +368,7 @@ class RiotApiService {
                 console.log('Generated enhanced champion data from matches:', topChampions);
                 
                 // Return early with match data included
-                return {
+      return {
                   ...result,
                   topChampions
                 };

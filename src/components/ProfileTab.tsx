@@ -10,6 +10,7 @@ import { riotApiService, type PlayerStats, getChampionName, getMostPlayedRole, g
 import { PlayerPreferenceTags } from './PlayerPreferenceTags';
 import { PreferencesWizard } from './PreferencesWizard';
 import { PlayerPreferences, DEFAULT_PREFERENCES } from '@/lib/playerPreferences';
+import { PlayerReviews } from './PlayerReviews';
 
 const ProfileTab = () => {
   const { toast } = useToast();
@@ -90,7 +91,7 @@ const ProfileTab = () => {
       );
       setPlayerStats(stats);
       localStorage.setItem('playerStats', JSON.stringify(stats));
-      
+
       toast({
         title: "Stats Updated",
         description: "Your League of Legends stats have been refreshed successfully.",
@@ -245,7 +246,7 @@ const ProfileTab = () => {
 
         {/* Player Identity */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardContent className="p-6">
+        <CardContent className="p-6">
             <div className="flex items-center gap-4 mb-4">
               <Avatar className="h-20 w-20">
                 <img 
@@ -260,8 +261,8 @@ const ProfileTab = () => {
                 />
                 <AvatarFallback className="bg-lol-gold/20 text-lol-gold text-xl font-bold hidden">
                   {playerStats.account.gameName.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              </AvatarFallback>
+            </Avatar>
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-foreground text-lg truncate">
                   {playerStats.account.gameName}
@@ -312,7 +313,7 @@ const ProfileTab = () => {
                     <p className="font-semibold text-foreground text-lg">
                       {primaryRank.wins + primaryRank.losses}
                     </p>
-                  </div>
+                </div>
                 </div>
                 
                 <div className="text-sm">
@@ -359,14 +360,14 @@ const ProfileTab = () => {
                       <IconComponent className={`h-5 w-5 ${roleData.color} ${roleData.url ? 'hidden' : ''}`} />
                       <Badge variant="outline" className="border-lol-gold/30 text-lol-gold text-sm px-3 py-1">
                         {mostPlayedRole}
-                      </Badge>
+                </Badge>
                     </>
                   );
                 })()}
-              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
 
         {/* Favorite Champions */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
@@ -374,7 +375,7 @@ const ProfileTab = () => {
             <div className="flex items-center gap-3 mb-4">
               <Star className="h-5 w-5 text-yellow-400" />
               <h4 className="font-semibold text-base text-foreground">Favorite Champions</h4>
-            </div>
+                </div>
             
             {playerStats.topChampions.length > 0 ? (
               <div className="space-y-3">
@@ -401,16 +402,16 @@ const ProfileTab = () => {
                     </div>
                     <div className="flex items-center gap-1 text-yellow-400">
                       <Star className="h-3 w-3 fill-current" />
-                    </div>
-                  </div>
+                </div>
+                </div>
                 ))}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">No champion data available</p>
             )}
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
 
       {/* Right Column - Player Preferences and Additional Content */}
       <div className="lg:col-span-2 space-y-6">
@@ -420,24 +421,12 @@ const ProfileTab = () => {
             preferences={playerPreferences}
             onEdit={handleEditPreferences}
             showEditButton={true}
-          />
-        </div>
-
-        {/* Additional Stats Placeholder */}
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-center h-32">
-              <div className="text-center">
-                <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">Additional Stats</h3>
-                <p className="text-muted-foreground">
-                  More detailed statistics and match history will be displayed here.
-                </p>
-              </div>
+              />
             </div>
-          </CardContent>
-        </Card>
-      </div>
+
+        {/* Player Reviews with Spider Chart */}
+        <PlayerReviews />
+            </div>
     </div>
   );
 };
