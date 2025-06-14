@@ -53,16 +53,15 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Balinese-inspired color palette
-				balinese: {
-					sunset: '#FF6B35',
-					gold: '#F7931E',
-					earth: '#8B4513',
-					sage: '#87A96B',
-					temple: '#D2691E',
-					ocean: '#4682B4',
-					lotus: '#FFB6C1',
-					bamboo: '#228B22'
+				// Gaming-inspired color palette
+				gaming: {
+					teal: '#14B8A6',
+					'teal-dark': '#0F766E',
+					'gray-900': '#111827',
+					'gray-800': '#1F2937',
+					'gray-700': '#374151',
+					black: '#000000',
+					white: '#FFFFFF'
 				}
 			},
 			borderRadius: {
@@ -107,12 +106,12 @@ export default {
 						opacity: '1'
 					}
 				},
-				'heart-beat': {
+				'pulse-teal': {
 					'0%, 100%': {
-						transform: 'scale(1)'
+						boxShadow: '0 0 0 0 rgba(20, 184, 166, 0.7)'
 					},
-					'50%': {
-						transform: 'scale(1.1)'
+					'70%': {
+						boxShadow: '0 0 0 10px rgba(20, 184, 166, 0)'
 					}
 				}
 			},
@@ -121,12 +120,11 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.6s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
-				'heart-beat': 'heart-beat 1s ease-in-out infinite'
+				'pulse-teal': 'pulse-teal 2s infinite'
 			},
 			backgroundImage: {
-				'gradient-sunset': 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)',
-				'gradient-earth': 'linear-gradient(135deg, #8B4513 0%, #D2691E 100%)',
-				'gradient-nature': 'linear-gradient(135deg, #87A96B 0%, #228B22 100%)'
+				'gradient-gaming': 'linear-gradient(135deg, #000000 0%, #1F2937 100%)',
+				'gradient-teal': 'linear-gradient(135deg, #14B8A6 0%, #0F766E 100%)'
 			}
 		}
 	},
